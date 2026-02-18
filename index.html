@@ -1,1371 +1,1658 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0a0f">
-<title>DetectorPI</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:        #0a0a0f;
-  --surface:   #12121a;
-  --border:    #1e1e2e;
-  --accent:    #00f5c4;
-  --accent2:   #f5a623;
-  --danger:    #ff3b5c;
-  --green:     #00e676;
-  --text:      #e0e0f0;
-  --muted:     #4a4a6a;
-  --font-mono: 'Share Tech Mono', monospace;
-  --font-main: 'Rajdhani', sans-serif;
-  --glow:      0 0 20px rgba(0,245,196,0.3);
-  --glow-red:  0 0 20px rgba(255,59,92,0.4);
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>DetectorPI Pro — v3.9</title>
+  <style>
+    :root {
+      --primary: #00d4ff;
+      --secondary: #ff6b35;
+      --success: #39d353;
+      --danger: #ff4757;
+      --warning: #ffa502;
+      --bg-dark: #0f0f1e;
+      --bg-card: #1a1a2e;
+      --bg-panel: #16213e;
+      --text: #e8e8e8;
+      --text-dim: #8b92a8;
+      --border: #2c3e50;
+    }
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-html, body {
-  height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-main);
-  overflow: hidden;
-  user-select: none;
-}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
 
-/* ── LAYOUT ── */
-#app {
-  display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 0;
-  position: relative;
-}
+    /* ══════════════════════════════════════════════════════════════
+       HEADER CON ESTADO
+       ══════════════════════════════════════════════════════════════ */
+    .header {
+      background: linear-gradient(135deg, var(--bg-panel) 0%, var(--bg-card) 100%);
+      border-bottom: 3px solid var(--primary);
+      padding: 16px 20px;
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-/* ── HEADER ── */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px 10px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, #0d0d18 0%, var(--bg) 100%);
-  flex-shrink: 0;
-}
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
 
-.logo {
-  font-family: var(--font-mono);
-  font-size: 18px;
-  color: var(--accent);
-  letter-spacing: 3px;
-  text-shadow: var(--glow);
-}
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-.logo span { color: var(--muted); font-size: 12px; display: block; letter-spacing: 2px; margin-top: 2px; }
+    .header-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+    }
 
-#btn-connect {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid var(--muted);
-  background: transparent;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-#btn-connect.connected {
-  border-color: var(--accent);
-  color: var(--accent);
-  box-shadow: var(--glow);
-}
-#btn-connect .dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--muted);
-  transition: all 0.3s;
-}
-#btn-connect.connected .dot {
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
-  animation: pulse-dot 1.5s infinite;
-}
+    .header-badge {
+      background: var(--primary);
+      color: var(--bg-dark);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
 
-@keyframes pulse-dot {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
 
-/* ── TABS ── */
-#tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-  flex-shrink: 0;
-}
-.tab {
-  flex: 1;
-  padding: 10px 4px;
-  text-align: center;
-  font-family: var(--font-main);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  text-transform: uppercase;
-}
-.tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
 
-/* ── PAGES ── */
-#pages { flex: 1; overflow: hidden; position: relative; }
-.page { 
-  position: absolute; inset: 0; 
-  overflow-y: auto; 
-  padding: 16px;
-  display: none;
-  flex-direction: column;
-  gap: 14px;
-}
-.page.active { display: flex; }
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
 
-/* ── CARD ── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
-}
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: 0.4;
-}
-.card-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
+    .icon-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--text);
+    }
 
-/* ── DETECTOR PRINCIPAL ── */
-#detection-ring {
-  width: 180px; height: 180px;
-  margin: 0 auto;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .icon-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
 
-#ring-svg {
-  position: absolute;
-  inset: 0;
-  transform: rotate(-90deg);
-  width: 100%; height: 100%;
-}
+    .icon-btn.active svg {
+      fill: var(--bg-dark);
+    }
 
-#ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
-#ring-fill {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 6;
-  stroke-linecap: round;
-  stroke-dasharray: 502;
-  stroke-dashoffset: 502;
-  filter: drop-shadow(0 0 6px var(--accent));
-  transition: stroke-dashoffset 0.15s, stroke 0.3s;
-}
+    .status-bar {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+    }
 
-#ring-center {
-  text-align: center;
-  z-index: 1;
-}
-#signal-value {
-  font-family: var(--font-mono);
-  font-size: 48px;
-  color: var(--accent);
-  text-shadow: var(--glow);
-  line-height: 1;
-  transition: color 0.3s;
-}
-#signal-label {
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--muted);
-  margin-top: 4px;
-}
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-/* ── ESTADO DETECCIÓN ── */
-#detection-status {
-  text-align: center;
-  padding: 10px;
-  border-radius: 8px;
-  background: rgba(30,30,46,0.5);
-  border: 1px solid var(--border);
-  transition: all 0.3s;
-}
-#detection-status.ferroso {
-  border-color: var(--danger);
-  background: rgba(255,59,92,0.1);
-}
-#detection-status.no-ferroso {
-  border-color: var(--green);
-  background: rgba(0,230,118,0.1);
-}
-#metal-type {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: var(--muted);
-  transition: color 0.3s;
-}
-#metal-type.ferroso { color: var(--danger); text-shadow: var(--glow-red); }
-#metal-type.no-ferroso { color: var(--green); }
+    .led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      transition: all 0.3s;
+    }
 
-#detection-icon { font-size: 28px; margin-bottom: 4px; }
+    .led.on {
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse-led 2s infinite;
+    }
 
-/* ── BARRA DE INTENSIDAD ── */
-.intensity-bar-wrap {
-  margin-top: 4px;
-}
-.bar-labels {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-.bar-track {
-  height: 8px;
-  background: var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.bar-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  box-shadow: 0 0 8px rgba(0,245,196,0.5);
-  transition: width 0.1s;
-}
+    @keyframes pulse-led {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
 
-/* ── STATS GRID ── */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.stat-box {
-  background: rgba(10,10,15,0.6);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  text-align: center;
-}
-.stat-value {
-  font-family: var(--font-mono);
-  font-size: 22px;
-  color: var(--accent);
-}
-.stat-lbl {
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-top: 2px;
-}
+    /* ══════════════════════════════════════════════════════════════
+       DETECCIÓN PRINCIPAL
+       ══════════════════════════════════════════════════════════════ */
+    .detection-hero {
+      margin: 20px;
+      padding: 32px 24px;
+      border-radius: 16px;
+      text-align: center;
+      border: 3px solid var(--border);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
 
-/* ── BATERÍA ── */
-.batt-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.batt-body {
-  flex: 1;
-  height: 20px;
-  border: 2px solid var(--muted);
-  border-radius: 4px;
-  padding: 2px;
-  position: relative;
-}
-.batt-body::after {
-  content: '';
-  position: absolute;
-  right: -6px; top: 50%;
-  transform: translateY(-50%);
-  width: 4px; height: 10px;
-  background: var(--muted);
-  border-radius: 0 2px 2px 0;
-}
-.batt-level {
-  height: 100%;
-  border-radius: 2px;
-  background: var(--green);
-  transition: width 0.5s, background 0.5s;
-}
-.batt-pct {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--text);
-  min-width: 40px;
-  text-align: right;
-}
+    .detection-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, transparent 0%, var(--bg-card) 100%);
+      z-index: 0;
+    }
 
-/* ── CONTROL SENSIBILIDAD ── */
-.sens-control {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.sens-btn {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  border: 2px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  font-size: 24px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
-}
-.sens-btn:active {
-  background: rgba(0,245,196,0.15);
-  transform: scale(0.9);
-}
-.sens-track {
-  flex: 1;
-  position: relative;
-}
-.sens-track-bg {
-  height: 6px;
-  background: var(--border);
-  border-radius: 3px;
-  position: relative;
-}
-.sens-track-fill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  transition: width 0.3s;
-}
-.sens-dots {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-.sens-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--border);
-  transition: all 0.2s;
-}
-.sens-dot.active { background: var(--accent); }
-.sens-level-display {
-  text-align: center;
-  margin-top: 10px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--muted);
-}
-.sens-level-display span {
-  color: var(--accent);
-  font-size: 20px;
-}
+    .detection-content {
+      position: relative;
+      z-index: 1;
+    }
 
-/* ── CONTROLES ── */
-.controls-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.ctrl-btn {
-  padding: 14px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: rgba(10,10,15,0.8);
-  color: var(--text);
-  font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 1px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s;
-  text-transform: uppercase;
-}
-.ctrl-btn .icon { font-size: 22px; }
-.ctrl-btn:active { transform: scale(0.95); }
-.ctrl-btn.danger { border-color: var(--danger); color: var(--danger); }
-.ctrl-btn.success { border-color: var(--green); color: var(--green); }
-.ctrl-btn.active-state { 
-  background: rgba(0,245,196,0.1);
-  border-color: var(--accent);
-  color: var(--accent);
-}
+    .detection-hero.idle {
+      background: var(--bg-card);
+    }
 
-/* ── GRÁFICA ── */
-#chart-canvas {
-  width: 100%;
-  height: 150px;
-  display: block;
-  border-radius: 8px;
-  background: #0a0a0f;
-}
+    .detection-hero.ferroso {
+      background: linear-gradient(135deg, #ff4757 0%, #d63031 100%);
+      border-color: #ff4757;
+      animation: pulse-detection 1s infinite;
+    }
 
-.chart-info {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--muted);
-}
+    .detection-hero.no-ferroso {
+      background: linear-gradient(135deg, #39d353 0%, #2ecc71 100%);
+      border-color: #39d353;
+      animation: pulse-detection 1s infinite;
+    }
 
-/* ── HISTORIAL ── */
-#history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.hist-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  background: rgba(10,10,15,0.6);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  animation: slideIn 0.3s ease;
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-.hist-icon { font-size: 22px; flex-shrink: 0; }
-.hist-info { flex: 1; }
-.hist-type {
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 1px;
-}
-.hist-type.F { color: var(--danger); }
-.hist-type.N { color: var(--green); }
-.hist-meta {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-.hist-signal {
-  font-family: var(--font-mono);
-  font-size: 16px;
-  color: var(--accent);
-}
-.hist-empty {
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-  padding: 40px 20px;
-  letter-spacing: 1px;
-}
+    @keyframes pulse-detection {
+      0%, 100% {
+        box-shadow: 0 0 0 0 currentColor;
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 0 20px transparent;
+        transform: scale(1.02);
+      }
+    }
 
-/* ── MAPA ── */
-#map-container {
-  height: 280px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  background: #0a0a12;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#map-placeholder {
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-  letter-spacing: 1px;
-  padding: 20px;
-}
-#map-placeholder .map-icon { font-size: 40px; margin-bottom: 10px; }
-#gps-status {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-#gps-coords {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--accent);
-  margin-top: 4px;
-  letter-spacing: 1px;
-}
+    .detection-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
 
-.map-pins-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 160px;
-  overflow-y: auto;
-}
-.map-pin-item {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 8px 10px;
-  background: rgba(10,10,15,0.6);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
-.pin-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.pin-dot.F { background: var(--danger); }
-.pin-dot.N { background: var(--green); }
+    .detection-label {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
 
-/* ── TOAST ── */
-#toast {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--surface);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 1px;
-  padding: 10px 20px;
-  border-radius: 20px;
-  opacity: 0;
-  transition: all 0.3s;
-  pointer-events: none;
-  z-index: 100;
-  white-space: nowrap;
-}
-#toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+    .detection-stats {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 20px;
+      font-size: 14px;
+    }
 
-/* ── DETECCIÓN FLASH ── */
-#detection-flash {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.1s;
-  z-index: 50;
-}
-#detection-flash.ferroso { background: rgba(255,59,92,0.08); }
-#detection-flash.no-ferroso { background: rgba(0,230,118,0.06); }
-#detection-flash.show { opacity: 1; }
+    .detection-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-/* ── NO CONECTADO ── */
-#offline-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(10,10,15,0.85);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  z-index: 30;
-  backdrop-filter: blur(4px);
-}
-#offline-overlay.hidden { display: none; }
-.offline-icon { font-size: 48px; opacity: 0.4; }
-.offline-text {
-  font-size: 14px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-align: center;
-}
-.offline-btn {
-  margin-top: 8px;
-  padding: 12px 28px;
-  border-radius: 24px;
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.offline-btn:active { background: rgba(0,245,196,0.1); }
+    .detection-stat-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-/* scrollbar */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-</style>
+    .detection-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       SIGNAL BAR
+       ══════════════════════════════════════════════════════════════ */
+    .signal-panel {
+      margin: 20px;
+      padding: 20px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .signal-bar-container {
+      position: relative;
+      height: 60px;
+      background: var(--bg-dark);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      border: 2px solid var(--border);
+    }
+
+    .signal-bar-bg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.03) 10px,
+        rgba(255,255,255,0.03) 20px
+      );
+    }
+
+    .signal-bar-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        var(--primary) 0%, 
+        var(--success) 50%, 
+        var(--warning) 75%,
+        var(--danger) 100%);
+      transition: width 0.15s ease-out;
+      box-shadow: 0 0 20px currentColor;
+    }
+
+    .signal-threshold-line {
+      position: absolute;
+      top: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--danger);
+      box-shadow: 0 0 8px var(--danger);
+      z-index: 10;
+    }
+
+    .signal-threshold-label {
+      position: absolute;
+      top: -24px;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--danger);
+      background: var(--bg-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .signal-values {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .signal-value {
+      text-align: center;
+    }
+
+    .signal-value-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .signal-value-number {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+      color: var(--primary);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       LOCATION PANEL
+       ══════════════════════════════════════════════════════════════ */
+    .location-panel {
+      margin: 20px;
+      padding: 20px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .location-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .location-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .location-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .location-value {
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+      color: var(--text);
+    }
+
+    .location-accuracy {
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .save-location-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .save-location-btn:active {
+      transform: scale(0.97);
+    }
+
+    .save-location-btn:disabled {
+      background: var(--text-dim);
+      cursor: not-allowed;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       HISTORIAL DE DETECCIONES
+       ══════════════════════════════════════════════════════════════ */
+    .history-panel {
+      margin: 20px;
+      padding: 20px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .history-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+
+    .history-item {
+      padding: 14px;
+      background: var(--bg-panel);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid var(--text-dim);
+      transition: all 0.2s;
+    }
+
+    .history-item.ferroso {
+      border-left-color: var(--danger);
+    }
+
+    .history-item.no-ferroso {
+      border-left-color: var(--success);
+    }
+
+    .history-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .history-item-type {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .history-item-time {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .history-item-details {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .history-item-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .history-item-detail-label {
+      color: var(--text-dim);
+    }
+
+    .history-item-detail-value {
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+
+    .history-item-location {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clear-history-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 12px;
+      background: var(--bg-panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-history-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       CONTROLS PANEL
+       ══════════════════════════════════════════════════════════════ */
+    .controls-panel {
+      margin: 20px;
+      padding: 20px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .control-group {
+      margin-bottom: 24px;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .control-btn {
+      flex: 1;
+      padding: 16px;
+      background: var(--bg-panel);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .control-btn:active {
+      transform: scale(0.96);
+    }
+
+    .control-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .control-btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--bg-dark);
+    }
+
+    .control-btn.danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    .control-btn.success {
+      background: var(--success);
+      border-color: var(--success);
+      color: var(--bg-dark);
+    }
+
+    .control-display {
+      flex: 0 0 80px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+      color: var(--primary);
+      background: var(--bg-dark);
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+    }
+
+    .control-unit {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-left: 4px;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       CHART
+       ══════════════════════════════════════════════════════════════ */
+    .chart-panel {
+      margin: 20px;
+      padding: 20px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .chart-container {
+      height: 120px;
+      background: var(--bg-dark);
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      margin-top: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       CONNECT BUTTON
+       ══════════════════════════════════════════════════════════════ */
+    .connect-section {
+      margin: 20px;
+      padding: 24px;
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-panel) 100%);
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      text-align: center;
+    }
+
+    .connect-btn {
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--primary) 0%, #0090cc 100%);
+      border: none;
+      border-radius: 12px;
+      color: var(--bg-dark);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .connect-btn:active {
+      transform: scale(0.97);
+    }
+
+    .connect-btn.connected {
+      background: linear-gradient(135deg, var(--danger) 0%, #d63031 100%);
+      box-shadow: 0 4px 20px rgba(255, 71, 87, 0.3);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       MODAL
+       ══════════════════════════════════════════════════════════════ */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 500px;
+      width: 100%;
+      border: 2px solid var(--primary);
+      box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-body {
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .modal-body ul {
+      padding-left: 20px;
+      margin-top: 12px;
+    }
+
+    .modal-body li {
+      margin-bottom: 8px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn.primary {
+      background: var(--primary);
+      color: var(--bg-dark);
+    }
+
+    .modal-btn.secondary {
+      background: var(--bg-panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════════════════ */
+    .footer {
+      margin: 40px 20px 20px;
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       UTILITIES
+       ══════════════════════════════════════════════════════════════ */
+    .hidden {
+      display: none !important;
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-panel);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+  </style>
 </head>
 <body>
-
-<div id="app">
-
   <!-- HEADER -->
-  <header>
-    <div class="logo">
-      DETECTOR<span>PI — v3.0</span>
+  <div class="header">
+    <div class="header-top">
+      <div class="header-title">
+        <h1>🔍 DetectorPI Pro</h1>
+        <span class="header-badge">v3.9</span>
+      </div>
+      <div class="header-actions">
+        <div class="icon-btn" id="btn-help" title="Ayuda">
+          <svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+        </div>
+        <div class="icon-btn" id="btn-settings" title="Configuración">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        </div>
+        <div class="icon-btn" id="btn-location" title="Activar GPS">
+          <svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        </div>
+      </div>
     </div>
-    <button id="btn-connect">
-      <div class="dot"></div>
-      <span id="btn-connect-text">CONECTAR</span>
-    </button>
-  </header>
-
-  <!-- TABS -->
-  <div id="tabs">
-    <div class="tab active" data-page="page-live">SEÑAL</div>
-    <div class="tab" data-page="page-control">CONTROL</div>
-    <div class="tab" data-page="page-history">HISTORIAL</div>
-    <div class="tab" data-page="page-map">MAPA</div>
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="led" id="led-ble"></div>
+        <span id="status-text">Desconectado</span>
+      </div>
+      <div class="status-item">
+        <div class="led" id="led-gps"></div>
+        <span id="gps-text">GPS inactivo</span>
+      </div>
+    </div>
   </div>
 
-  <!-- PAGES -->
-  <div id="pages">
-
-    <!-- ── PÁGINA SEÑAL ── -->
-    <div class="page active" id="page-live">
-
-      <!-- Anillo principal -->
-      <div class="card">
-        <div id="detection-ring">
-          <svg id="ring-svg" viewBox="0 0 180 180">
-            <circle id="ring-bg"   cx="90" cy="90" r="80"/>
-            <circle id="ring-fill" cx="90" cy="90" r="80"/>
-          </svg>
-          <div id="ring-center">
-            <div id="signal-value">0</div>
-            <div id="signal-label">SEÑAL</div>
-          </div>
+  <!-- DETECCIÓN PRINCIPAL -->
+  <div class="detection-hero idle" id="detection-hero">
+    <div class="detection-content">
+      <div class="detection-icon" id="detection-icon">⚪</div>
+      <div class="detection-label" id="detection-label">EN ESPERA</div>
+      <div class="detection-stats">
+        <div class="detection-stat">
+          <div class="detection-stat-label">Señal</div>
+          <div class="detection-stat-value" id="stat-delta">---</div>
         </div>
-
-        <!-- Estado -->
-        <div id="detection-status">
-          <div id="detection-icon">🔍</div>
-          <div id="metal-type">ESPERANDO</div>
-        </div>
-      </div>
-
-      <!-- Barra intensidad -->
-      <div class="card">
-        <div class="card-title">Intensidad de señal</div>
-        <div class="intensity-bar-wrap">
-          <div class="bar-labels">
-            <span>0</span><span>UMBRAL: <span id="threshold-label">120</span></span><span>500</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-fill" id="intensity-bar"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-value" id="stat-sens">5</div>
-          <div class="stat-lbl">Sensibilidad</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="stat-detections">0</div>
-          <div class="stat-lbl">Detecciones</div>
-        </div>
-      </div>
-
-      <!-- Batería -->
-      <div class="card">
-        <div class="card-title">Batería</div>
-        <div class="batt-wrap">
-          <div class="batt-body">
-            <div class="batt-level" id="batt-level" style="width:100%"></div>
-          </div>
-          <div class="batt-pct" id="batt-pct">100%</div>
-        </div>
-      </div>
-
-    </div><!-- /page-live -->
-
-    <!-- ── PÁGINA CONTROL ── -->
-    <div class="page" id="page-control">
-
-      <!-- Sensibilidad -->
-      <div class="card">
-        <div class="card-title">Ajuste de sensibilidad</div>
-        <div class="sens-control">
-          <button class="sens-btn" id="sens-down">−</button>
-          <div class="sens-track">
-            <div class="sens-track-bg">
-              <div class="sens-track-fill" id="sens-track-fill" style="width:40%"></div>
-            </div>
-            <div class="sens-dots" id="sens-dots"></div>
-          </div>
-          <button class="sens-btn" id="sens-up">+</button>
-        </div>
-        <div class="sens-level-display">
-          Nivel <span id="sens-display">5</span> / 10
-        </div>
-      </div>
-
-      <!-- Controles -->
-      <div class="card">
-        <div class="card-title">Acciones</div>
-        <div class="controls-grid">
-          <button class="ctrl-btn success" id="btn-calibrate">
-            <span class="icon">⚡</span>CALIBRAR
-          </button>
-          <button class="ctrl-btn" id="btn-alarm" data-on="true">
-            <span class="icon">🔔</span>ALARMA ON
-          </button>
-          <button class="ctrl-btn" id="btn-vibrate" data-on="true">
-            <span class="icon">📳</span>VIBRACIÓN ON
-          </button>
-          <button class="ctrl-btn danger" id="btn-clear-hist">
-            <span class="icon">🗑️</span>LIMPIAR
-          </button>
-        </div>
-      </div>
-
-      <!-- Gráfica -->
-      <div class="card">
-        <div class="card-title">Gráfica en tiempo real</div>
-        <canvas id="chart-canvas"></canvas>
-        <div class="chart-info">
-          <span>← 60 segundos</span>
-          <span id="chart-max">MAX: 0</span>
-        </div>
-      </div>
-
-    </div><!-- /page-control -->
-
-    <!-- ── PÁGINA HISTORIAL ── -->
-    <div class="page" id="page-history">
-      <div class="card">
-        <div class="card-title">Detecciones registradas</div>
-        <div id="history-list">
-          <div class="hist-empty">Sin detecciones aún.<br>Acerca un metal a la bobina.</div>
+        <div class="detection-stat">
+          <div class="detection-stat-label">Umbral</div>
+          <div class="detection-stat-value" id="stat-umbral">---</div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ── PÁGINA MAPA ── -->
-    <div class="page" id="page-map">
-      <div class="card">
-        <div class="card-title">Ubicación GPS</div>
-        <div id="map-container">
-          <div id="map-placeholder">
-            <div class="map-icon">🗺️</div>
-            <div>Activa el GPS para<br>ver detecciones en el mapa</div>
-            <div id="gps-status">GPS: inactivo</div>
-            <div id="gps-coords"></div>
-          </div>
-        </div>
-        <button class="ctrl-btn success" id="btn-gps" style="width:100%;margin-top:10px;flex-direction:row;justify-content:center;">
-          <span class="icon">📍</span>&nbsp;ACTIVAR GPS
+  <!-- SIGNAL BAR -->
+  <div class="signal-panel">
+    <div class="panel-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+      Intensidad de señal
+    </div>
+    <div class="signal-bar-container">
+      <div class="signal-bar-bg"></div>
+      <div class="signal-bar-fill" id="signal-fill" style="width: 0%"></div>
+      <div class="signal-threshold-line" id="threshold-line" style="left: 20%">
+        <div class="signal-threshold-label">UMBRAL</div>
+      </div>
+    </div>
+    <div class="signal-values">
+      <div class="signal-value">
+        <div class="signal-value-label">Delta</div>
+        <div class="signal-value-number" id="val-delta">0</div>
+      </div>
+      <div class="signal-value">
+        <div class="signal-value-label">Baseline</div>
+        <div class="signal-value-number" id="val-baseline">0</div>
+      </div>
+      <div class="signal-value">
+        <div class="signal-value-label">Sens.</div>
+        <div class="signal-value-number" id="val-sens">5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCATION -->
+  <div class="location-panel hidden" id="location-panel">
+    <div class="panel-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      Ubicación GPS
+    </div>
+    <div class="location-grid">
+      <div class="location-item">
+        <div class="location-label">Latitud</div>
+        <div class="location-value" id="loc-lat">---</div>
+      </div>
+      <div class="location-item">
+        <div class="location-label">Longitud</div>
+        <div class="location-value" id="loc-lng">---</div>
+      </div>
+      <div class="location-item">
+        <div class="location-label">Altitud</div>
+        <div class="location-value" id="loc-alt">--- m</div>
+      </div>
+      <div class="location-item">
+        <div class="location-label">Precisión</div>
+        <div class="location-value" id="loc-acc">--- m</div>
+      </div>
+    </div>
+    <div class="location-accuracy" id="loc-status">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      GPS activo
+    </div>
+    <button class="save-location-btn" id="btn-save-location">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+      GUARDAR DETECCIÓN CON GPS
+    </button>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="history-panel hidden" id="history-panel">
+    <div class="panel-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+      Historial de detecciones
+      <span style="margin-left: auto; font-size: 12px; font-weight: 400;" id="history-count">(0)</span>
+    </div>
+    <div class="history-list" id="history-list">
+      <div style="text-align: center; padding: 40px 20px; color: var(--text-dim);">
+        Sin detecciones registradas
+      </div>
+    </div>
+    <button class="clear-history-btn" id="btn-clear-history">
+      🗑️ Borrar historial
+    </button>
+  </div>
+
+  <!-- CONTROLES -->
+  <div class="controls-panel hidden" id="controls-panel">
+    <div class="panel-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
+      Controles de ajuste
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">Sensibilidad (1-10)</div>
+      <div class="control-row">
+        <button class="control-btn" id="btn-sens-down" onclick="adjustSens(-1)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg>
+        </button>
+        <div class="control-display" id="display-sens">5</div>
+        <button class="control-btn" id="btn-sens-up" onclick="adjustSens(1)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </button>
       </div>
+    </div>
 
-      <div class="card">
-        <div class="card-title">Puntos marcados (<span id="pins-count">0</span>)</div>
-        <div class="map-pins-list" id="pins-list">
-          <div class="hist-empty">Sin puntos marcados.</div>
+    <div class="control-group">
+      <div class="control-label">Duty Cycle (%)</div>
+      <div class="control-row">
+        <button class="control-btn" id="btn-duty-down" onclick="adjustDuty(-5)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg>
+          −5%
+        </button>
+        <div class="control-display">
+          <span id="display-duty">15</span><span class="control-unit">%</span>
         </div>
+        <button class="control-btn" id="btn-duty-up" onclick="adjustDuty(5)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          +5%
+        </button>
       </div>
     </div>
 
-  </div><!-- /pages -->
-
-  <!-- FLASH -->
-  <div id="detection-flash"></div>
-
-  <!-- OFFLINE OVERLAY -->
-  <div id="offline-overlay">
-    <div class="offline-icon">📡</div>
-    <div class="offline-text">SIN CONEXIÓN<br><small style="font-size:11px;letter-spacing:1px">Conecta el detector via Bluetooth</small></div>
-    <button class="offline-btn" id="btn-connect-overlay">CONECTAR BLE</button>
+    <div class="control-group">
+      <div class="control-label">Acciones</div>
+      <div class="control-row">
+        <button class="control-btn success" onclick="sendCmd('CAL')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+          CALIBRAR
+        </button>
+        <button class="control-btn danger" id="btn-mute" onclick="toggleMute()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+          <span id="mute-text">MUTE</span>
+        </button>
+      </div>
+    </div>
   </div>
 
-</div><!-- /app -->
+  <!-- CHART -->
+  <div class="chart-panel">
+    <div class="panel-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+      Gráfico de señal
+    </div>
+    <div class="chart-container">
+      <canvas id="chart" width="500" height="120"></canvas>
+    </div>
+  </div>
 
-<!-- TOAST -->
-<div id="toast"></div>
+  <!-- CONNECT -->
+  <div class="connect-section">
+    <button class="connect-btn" id="btn-connect">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg>
+      <span id="btn-connect-text">CONECTAR DETECTOR</span>
+    </button>
+  </div>
 
-<script>
-// ════════════════════════════════════════════════════════
-//  CONSTANTES BLE
-// ════════════════════════════════════════════════════════
-const SERVICE_UUID   = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
-const CHAR_SIGNAL    = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
-const CHAR_CMD       = 'beb5483e-36e1-4688-b7f5-ea07361b26a9';
+  <!-- FOOTER -->
+  <div class="footer">
+    DetectorPI Pro v3.9 FINAL — ESP32-C3 + LM358 + FR107<br>
+    Desarrollado para detección profesional de metales<br>
+    Web Bluetooth API · Geolocalización HTML5
+  </div>
 
-// ════════════════════════════════════════════════════════
-//  ESTADO
-// ════════════════════════════════════════════════════════
-const state = {
-  connected:    false,
-  sensitivity:  5,
-  signal:       0,
-  threshold:    120,
-  metalType:    '-',
-  detecting:    false,
-  battery:      100,
-  alarmOn:      true,
-  vibrateOn:    true,
-  detections:   0,
-  history:      [],
-  gpsActive:    false,
-  gpsLat:       null,
-  gpsLng:       null,
-  pins:         [],
-  chartData:    new Array(120).fill(0),
-  chartMax:     0,
-  bleDevice:    null,
-  bleCharCmd:   null,
-};
+  <!-- MODAL AYUDA -->
+  <div class="modal" id="modal-help">
+    <div class="modal-content">
+      <div class="modal-header">
+        ℹ️ Guía de uso
+      </div>
+      <div class="modal-body">
+        <p><strong>Conexión BLE:</strong></p>
+        <ul>
+          <li>Pulsa "CONECTAR DETECTOR"</li>
+          <li>Selecciona "DetectorPI" en la lista</li>
+          <li>Si no aparece: reinicia el ESP32 y el Bluetooth del teléfono</li>
+          <li>Android 12+: activar permisos de Ubicación para la app</li>
+        </ul>
 
-// ════════════════════════════════════════════════════════
-//  UTILIDADES
-// ════════════════════════════════════════════════════════
-function toast(msg, duration = 2000) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), duration);
-}
+        <p style="margin-top: 16px;"><strong>GPS:</strong></p>
+        <ul>
+          <li>Pulsa el icono 📍 en la esquina superior</li>
+          <li>Autoriza el permiso de ubicación</li>
+          <li>Espera hasta tener precisión < 20m</li>
+          <li>Guarda detecciones con coordenadas GPS</li>
+        </ul>
 
-function vibrate(pattern) {
-  if (state.vibrateOn && navigator.vibrate) navigator.vibrate(pattern);
-}
+        <p style="margin-top: 16px;"><strong>Controles:</strong></p>
+        <ul>
+          <li><strong>Sensibilidad:</strong> 1 (mínima) - 10 (máxima)</li>
+          <li><strong>Duty:</strong> 15% recomendado, subir para más profundidad</li>
+          <li><strong>Calibrar:</strong> siempre con el área libre de metales</li>
+        </ul>
 
-function formatTime(d) {
-  return d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-}
+        <p style="margin-top: 16px;"><strong>Detección:</strong></p>
+        <ul>
+          <li>🔴 ROJO = Metal ferroso (hierro, acero)</li>
+          <li>🟢 VERDE = Metal no ferroso (cobre, oro, aluminio)</li>
+          <li>Las detecciones se guardan automáticamente con GPS</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn primary" onclick="closeModal()">ENTENDIDO</button>
+      </div>
+    </div>
+  </div>
 
-// ════════════════════════════════════════════════════════
-//  TABS
-// ════════════════════════════════════════════════════════
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.page).classList.add('active');
-    if (tab.dataset.page === 'page-control') drawChart();
-  });
-});
+  <!-- MODAL SETTINGS -->
+  <div class="modal" id="modal-settings">
+    <div class="modal-content">
+      <div class="modal-header">
+        ⚙️ Configuración avanzada
+      </div>
+      <div class="modal-body">
+        <p><strong>Información del sistema:</strong></p>
+        <ul>
+          <li>Firmware: ESP32-C3 v3.9 FINAL</li>
+          <li>UUID Servicio: 12345678-1234-1234-1234-123456789abc</li>
+          <li>Frecuencia PWM: 250 Hz</li>
+          <li>Buzzer: tone()/noTone() timer independiente</li>
+        </ul>
 
-// ════════════════════════════════════════════════════════
-//  BLE
-// ════════════════════════════════════════════════════════
-async function connectBLE() {
-  if (!navigator.bluetooth) {
-    toast('⚠ Web Bluetooth no disponible en este navegador');
-    return;
-  }
-  try {
-    toast('Buscando DetectorPI...');
-    const device = await navigator.bluetooth.requestDevice({
-      filters: [{ name: 'DetectorPI' }],
-      optionalServices: [SERVICE_UUID]
+        <p style="margin-top: 16px;"><strong>Historial local:</strong></p>
+        <ul>
+          <li>Las detecciones se guardan en localStorage del navegador</li>
+          <li>Máximo 100 detecciones</li>
+          <li>Exportar historial (próximamente): CSV + KML</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn primary" onclick="closeModal()">CERRAR</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    //  CONFIGURACIÓN
+    // ═══════════════════════════════════════════════════════════════
+    const UUID_SVC = '12345678-1234-1234-1234-123456789abc';
+    const UUID_TX  = '12345678-1234-1234-1234-123456789abd';
+    const UUID_RX  = '12345678-1234-1234-1234-123456789abe';
+
+    let device, server, txChar, rxChar;
+    let connected = false;
+    let isMuted = false;
+
+    // GPS
+    let gpsActive = false;
+    let currentPosition = null;
+    let watchId = null;
+
+    // Historial
+    let detectionHistory = [];
+    const MAX_HISTORY = 100;
+
+    // Chart
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+    const chartData = new Array(150).fill(0);
+    let chartIdx = 0;
+
+    // Estado actual
+    let currentData = {
+      delta: 0,
+      umbral: 0,
+      baseline: 0,
+      sens: 5,
+      duty: 15,
+      detecting: false,
+      type: null
+    };
+
+    // ═══════════════════════════════════════════════════════════════
+    //  INICIALIZACIÓN
+    // ═══════════════════════════════════════════════════════════════
+    window.addEventListener('load', () => {
+      loadHistory();
+      drawChart();
+      
+      // Cargar configuración guardada
+      const savedMute = localStorage.getItem('detector_mute');
+      if (savedMute === 'true') {
+        isMuted = true;
+        updateMuteButton();
+      }
     });
-    state.bleDevice = device;
-    device.addEventListener('gattserverdisconnected', onDisconnect);
 
-    const server  = await device.gatt.connect();
-    const service = await server.getPrimaryService(SERVICE_UUID);
+    // ═══════════════════════════════════════════════════════════════
+    //  BLE CONEXIÓN
+    // ═══════════════════════════════════════════════════════════════
+    document.getElementById('btn-connect').addEventListener('click', async () => {
+      if (connected) {
+        disconnect();
+        return;
+      }
 
-    // Característica señal (notificaciones)
-    const charSignal = await service.getCharacteristic(CHAR_SIGNAL);
-    await charSignal.startNotifications();
-    charSignal.addEventListener('characteristicvaluechanged', onSignalData);
+      try {
+        updateStatus('Buscando dispositivo...', false);
+        
+        device = await navigator.bluetooth.requestDevice({
+          filters: [{ name: 'DetectorPI' }],
+          optionalServices: [UUID_SVC]
+        });
 
-    // Característica comandos (escritura)
-    state.bleCharCmd = await service.getCharacteristic(CHAR_CMD);
+        device.addEventListener('gattserverdisconnected', onDisconnect);
 
-    setConnected(true);
-    toast('✓ Conectado a DetectorPI');
-  } catch (e) {
-    console.error(e);
-    toast('Error: ' + e.message);
-  }
-}
+        updateStatus('Conectando...', false);
+        server = await device.gatt.connect();
+        service = await server.getPrimaryService(UUID_SVC);
 
-function onDisconnect() {
-  setConnected(false);
-  toast('Desconectado del detector');
-}
+        txChar = await service.getCharacteristic(UUID_TX);
+        await txChar.startNotifications();
+        txChar.addEventListener('characteristicvaluechanged', onDataReceived);
 
-function setConnected(val) {
-  state.connected = val;
-  const btn  = document.getElementById('btn-connect');
-  const overlay = document.getElementById('offline-overlay');
-  btn.classList.toggle('connected', val);
-  document.getElementById('btn-connect-text').textContent = val ? 'CONECTADO' : 'CONECTAR';
-  overlay.classList.toggle('hidden', val);
-}
+        rxChar = await service.getCharacteristic(UUID_RX);
 
-async function sendCmd(cmd) {
-  if (!state.bleCharCmd) return;
-  try {
-    const encoder = new TextEncoder();
-    await state.bleCharCmd.writeValue(encoder.encode(cmd));
-  } catch(e) { console.error('CMD error:', e); }
-}
+        connected = true;
+        updateStatus('Conectado · DetectorPI', true);
+        
+        const btn = document.getElementById('btn-connect');
+        btn.classList.add('connected');
+        btn.innerHTML = `
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+          <span>DESCONECTAR</span>
+        `;
 
-// ════════════════════════════════════════════════════════
-//  DATOS ENTRANTES DEL ESP32
-// ════════════════════════════════════════════════════════
-function onSignalData(event) {
-  const decoder = new TextDecoder();
-  const raw = decoder.decode(event.target.value);
+        document.getElementById('controls-panel').classList.remove('hidden');
+        document.getElementById('history-panel').classList.remove('hidden');
 
-  // Mensajes especiales de calibración
-  if (raw.startsWith('CAL:')) {
-    if (raw === 'CAL:START') toast('⚡ Calibrando...', 3000);
-    else if (raw.startsWith('CAL:OK')) toast('✓ Calibración completa');
-    return;
-  }
+        console.log('✓ BLE conectado');
+      } catch (err) {
+        console.error('Error BLE:', err);
+        updateStatus('Error: ' + err.message, false);
+        showModal('modal-help');
+      }
+    });
 
-  try {
-    const data = JSON.parse(raw);
-    processData(data);
-  } catch(e) { /* ignorar JSON malformado */ }
-}
+    function disconnect() {
+      if (device && device.gatt.connected) {
+        device.gatt.disconnect();
+      }
+      onDisconnect();
+    }
 
-function processData(data) {
-  const prev = state.detecting;
+    function onDisconnect() {
+      connected = false;
+      updateStatus('Desconectado', false);
+      
+      const btn = document.getElementById('btn-connect');
+      btn.classList.remove('connected');
+      btn.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/>
+        </svg>
+        <span>CONECTAR DETECTOR</span>
+      `;
 
-  state.signal    = data.d || 0;
-  state.sensitivity = data.s || state.sensitivity;
-  state.threshold = data.t || state.threshold;
-  state.metalType = data.m || '-';
-  state.detecting = data.det === 1;
-  state.battery   = data.b || 100;
+      document.getElementById('controls-panel').classList.add('hidden');
+      resetDisplay();
+      console.log('BLE desconectado');
+    }
 
-  // Actualizar gráfica
-  state.chartData.push(state.signal);
-  if (state.chartData.length > 120) state.chartData.shift();
-  state.chartMax = Math.max(...state.chartData);
+    function updateStatus(text, isConnected) {
+      document.getElementById('status-text').textContent = text;
+      const led = document.getElementById('led-ble');
+      led.classList.toggle('on', isConnected);
+    }
 
-  // Detección nueva
-  if (state.detecting && !prev) {
-    state.detections++;
-    addToHistory(state.metalType, state.signal);
-    triggerDetectionFX(state.metalType);
-    if (state.metalType === 'F') addMapPin('F');
-    else if (state.metalType === 'N') addMapPin('N');
-  }
+    // ═══════════════════════════════════════════════════════════════
+    //  RECIBIR DATOS BLE
+    // ═══════════════════════════════════════════════════════════════
+    function onDataReceived(event) {
+      const value = new TextDecoder().decode(event.target.value);
+      try {
+        const data = JSON.parse(value);
+        
+        currentData = {
+          delta: data.d,
+          umbral: data.u,
+          baseline: data.b,
+          sens: data.s,
+          duty: data.dc,
+          detecting: data.det === 1,
+          type: data.t
+        };
 
-  updateUI();
-}
+        updateDisplay(data);
+        
+        // Chart
+        chartData[chartIdx] = data.d;
+        chartIdx = (chartIdx + 1) % chartData.length;
+        drawChart();
 
-// ════════════════════════════════════════════════════════
-//  EFECTOS DE DETECCIÓN
-// ════════════════════════════════════════════════════════
-function triggerDetectionFX(type) {
-  const flash = document.getElementById('detection-flash');
-  flash.className = type === 'F' ? 'ferroso show' : 'no-ferroso show';
-  setTimeout(() => flash.classList.remove('show'), 300);
+        // Guardar detección si hay GPS activo
+        if (data.det === 1 && currentPosition) {
+          saveDetection(data);
+        }
 
-  if (type === 'F') vibrate([100, 50, 100, 50, 200]);
-  else              vibrate([200, 50, 200]);
+      } catch (err) {
+        console.error('Error parsing JSON:', err, value);
+      }
+    }
 
-  if (state.alarmOn) {
-    // Beep en la app (complementario al buzzer físico)
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = type === 'F' ? 440 : 880;
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-      osc.start(); osc.stop(ctx.currentTime + 0.4);
-    } catch(e) {}
-  }
-}
+    function updateDisplay(data) {
+      // Hero panel
+      const hero = document.getElementById('detection-hero');
+      const icon = document.getElementById('detection-icon');
+      const label = document.getElementById('detection-label');
 
-// ════════════════════════════════════════════════════════
-//  ACTUALIZAR UI
-// ════════════════════════════════════════════════════════
-const CIRCUMFERENCE = 2 * Math.PI * 80; // 502.65
+      if (data.det === 1) {
+        if (data.t === 'F') {
+          hero.className = 'detection-hero ferroso';
+          icon.textContent = '🔴';
+          label.textContent = 'FERROSO';
+        } else if (data.t === 'N') {
+          hero.className = 'detection-hero no-ferroso';
+          icon.textContent = '🟢';
+          label.textContent = 'NO FERROSO';
+        }
+      } else {
+        hero.className = 'detection-hero idle';
+        icon.textContent = '⚪';
+        label.textContent = 'EN ESPERA';
+      }
 
-function updateUI() {
-  const s = state;
+      // Stats
+      document.getElementById('stat-delta').textContent = data.d;
+      document.getElementById('stat-umbral').textContent = data.u;
+      document.getElementById('val-delta').textContent = data.d;
+      document.getElementById('val-baseline').textContent = data.b;
+      document.getElementById('val-sens').textContent = data.s;
 
-  // Anillo
-  const pct    = Math.min(s.signal / 500, 1);
-  const offset = CIRCUMFERENCE * (1 - pct);
-  const ringFill = document.getElementById('ring-fill');
-  ringFill.style.strokeDashoffset = offset;
-  ringFill.style.stroke = s.detecting
-    ? (s.metalType === 'F' ? 'var(--danger)' : 'var(--green)')
-    : 'var(--accent)';
+      // Signal bar
+      const maxRange = data.u * 3;
+      const pct = Math.min((data.d / maxRange) * 100, 100);
+      document.getElementById('signal-fill').style.width = pct + '%';
 
-  document.getElementById('signal-value').textContent = s.signal;
-  document.getElementById('signal-value').style.color = s.detecting
-    ? (s.metalType === 'F' ? 'var(--danger)' : 'var(--green)')
-    : 'var(--accent)';
+      const thPct = Math.min((data.u / maxRange) * 100, 100);
+      document.getElementById('threshold-line').style.left = thPct + '%';
 
-  // Estado
-  const statusEl = document.getElementById('detection-status');
-  const typeEl   = document.getElementById('metal-type');
-  const iconEl   = document.getElementById('detection-icon');
-  statusEl.className = s.detecting ? (s.metalType === 'F' ? 'ferroso' : 'no-ferroso') : '';
-  if (s.detecting && s.metalType === 'F') {
-    typeEl.textContent = 'FERROSO';
-    typeEl.className   = 'ferroso';
-    iconEl.textContent = '🔴';
-  } else if (s.detecting && s.metalType === 'N') {
-    typeEl.textContent = 'NO FERROSO';
-    typeEl.className   = 'no-ferroso';
-    iconEl.textContent = '🟢';
-  } else {
-    typeEl.textContent = 'ESPERANDO';
-    typeEl.className   = '';
-    iconEl.textContent = '🔍';
-  }
+      // Controles
+      document.getElementById('display-sens').textContent = data.s;
+      document.getElementById('display-duty').textContent = data.dc;
+    }
 
-  // Barra intensidad
-  const barPct = Math.min((s.signal / 500) * 100, 100);
-  document.getElementById('intensity-bar').style.width = barPct + '%';
-  document.getElementById('threshold-label').textContent = s.threshold;
+    function resetDisplay() {
+      document.getElementById('detection-hero').className = 'detection-hero idle';
+      document.getElementById('detection-icon').textContent = '⚪';
+      document.getElementById('detection-label').textContent = 'EN ESPERA';
+      document.getElementById('stat-delta').textContent = '---';
+      document.getElementById('stat-umbral').textContent = '---';
+      document.getElementById('val-delta').textContent = '0';
+      document.getElementById('val-baseline').textContent = '0';
+      document.getElementById('val-sens').textContent = '5';
+      document.getElementById('signal-fill').style.width = '0%';
+      document.getElementById('display-sens').textContent = '5';
+      document.getElementById('display-duty').textContent = '15';
+      chartData.fill(0);
+      chartIdx = 0;
+      drawChart();
+    }
 
-  // Stats
-  document.getElementById('stat-sens').textContent = s.sensitivity;
-  document.getElementById('stat-detections').textContent = s.detections;
+    // ═══════════════════════════════════════════════════════════════
+    //  COMANDOS
+    // ═══════════════════════════════════════════════════════════════
+    async function sendCmd(cmd) {
+      if (!connected || !rxChar) {
+        alert('No conectado al detector');
+        return;
+      }
+      try {
+        const encoder = new TextEncoder();
+        await rxChar.writeValue(encoder.encode(cmd));
+        console.log('CMD:', cmd);
+      } catch (err) {
+        console.error('Error enviando comando:', err);
+      }
+    }
 
-  // Batería
-  const batt = s.battery;
-  const battEl = document.getElementById('batt-level');
-  battEl.style.width = batt + '%';
-  battEl.style.background = batt > 50 ? 'var(--green)' : batt > 20 ? 'var(--accent2)' : 'var(--danger)';
-  document.getElementById('batt-pct').textContent = batt + '%';
+    function adjustSens(delta) {
+      const cmd = delta > 0 ? 'S+' : 'S-';
+      sendCmd(cmd);
+    }
 
-  // Sensibilidad control
-  document.getElementById('sens-display').textContent = s.sensitivity;
-  document.getElementById('sens-track-fill').style.width = ((s.sensitivity - 1) / 9 * 100) + '%';
-  updateSensDots();
+    function adjustDuty(delta) {
+      const cmd = delta > 0 ? 'D+' : 'D-';
+      sendCmd(cmd);
+    }
 
-  // Gráfica (solo si la página está activa)
-  if (document.getElementById('page-control').classList.contains('active')) {
-    drawChart();
-  }
-}
+    function toggleMute() {
+      if (!connected) return;
+      
+      isMuted = !isMuted;
+      const cmd = isMuted ? 'MUTE' : 'SOUND';
+      sendCmd(cmd);
+      updateMuteButton();
+      
+      localStorage.setItem('detector_mute', isMuted.toString());
+    }
 
-// ════════════════════════════════════════════════════════
-//  SENSIBILIDAD DOTS
-// ════════════════════════════════════════════════════════
-function buildSensDots() {
-  const container = document.getElementById('sens-dots');
-  container.innerHTML = '';
-  for (let i = 1; i <= 10; i++) {
-    const d = document.createElement('div');
-    d.className = 'sens-dot' + (i <= state.sensitivity ? ' active' : '');
-    container.appendChild(d);
-  }
-}
+    function updateMuteButton() {
+      const btn = document.getElementById('btn-mute');
+      const text = document.getElementById('mute-text');
+      
+      if (isMuted) {
+        btn.classList.add('danger');
+        text.textContent = 'UNMUTE';
+        btn.querySelector('svg').innerHTML = '<path d="M7 9v6h4l5 5V4l-5 5H7z"/>';
+      } else {
+        btn.classList.remove('danger');
+        text.textContent = 'MUTE';
+        btn.querySelector('svg').innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+      }
+    }
 
-function updateSensDots() {
-  const dots = document.querySelectorAll('.sens-dot');
-  dots.forEach((d, i) => {
-    d.classList.toggle('active', i < state.sensitivity);
-  });
-}
+    // ═══════════════════════════════════════════════════════════════
+    //  GPS
+    // ═══════════════════════════════════════════════════════════════
+    document.getElementById('btn-location').addEventListener('click', () => {
+      if (gpsActive) {
+        stopGPS();
+      } else {
+        startGPS();
+      }
+    });
 
-// ════════════════════════════════════════════════════════
-//  GRÁFICA
-// ════════════════════════════════════════════════════════
-function drawChart() {
-  const canvas = document.getElementById('chart-canvas');
-  const ctx    = canvas.getContext('2d');
-  const W = canvas.offsetWidth;
-  const H = 150;
-  canvas.width  = W * window.devicePixelRatio;
-  canvas.height = H * window.devicePixelRatio;
-  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    function startGPS() {
+      if (!navigator.geolocation) {
+        alert('Geolocalización no soportada en este navegador');
+        return;
+      }
 
-  ctx.clearRect(0, 0, W, H);
+      document.getElementById('gps-text').textContent = 'GPS activando...';
+      
+      watchId = navigator.geolocation.watchPosition(
+        onGPSSuccess,
+        onGPSError,
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+      );
 
-  // Fondo grid
-  ctx.strokeStyle = 'rgba(30,30,46,0.8)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = (i / 4) * H;
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
+      gpsActive = true;
+      document.getElementById('btn-location').classList.add('active');
+      document.getElementById('location-panel').classList.remove('hidden');
+    }
 
-  // Línea de umbral
-  const threshY = H - (state.threshold / 500) * H;
-  ctx.strokeStyle = 'rgba(245,166,35,0.5)';
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath(); ctx.moveTo(0, threshY); ctx.lineTo(W, threshY); ctx.stroke();
-  ctx.setLineDash([]);
+    function stopGPS() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      gpsActive = false;
+      currentPosition = null;
+      document.getElementById('btn-location').classList.remove('active');
+      document.getElementById('led-gps').classList.remove('on');
+      document.getElementById('gps-text').textContent = 'GPS inactivo';
+      document.getElementById('location-panel').classList.add('hidden');
+    }
 
-  const data = state.chartData;
-  const maxVal = Math.max(500, state.chartMax);
-  const step   = W / (data.length - 1);
+    function onGPSSuccess(position) {
+      currentPosition = position;
+      
+      document.getElementById('led-gps').classList.add('on');
+      document.getElementById('gps-text').textContent = 'GPS activo';
+      
+      document.getElementById('loc-lat').textContent = position.coords.latitude.toFixed(6);
+      document.getElementById('loc-lng').textContent = position.coords.longitude.toFixed(6);
+      document.getElementById('loc-alt').textContent = position.coords.altitude 
+        ? position.coords.altitude.toFixed(0) + ' m'
+        : 'N/A';
+      document.getElementById('loc-acc').textContent = position.coords.accuracy.toFixed(0) + ' m';
 
-  // Relleno
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, 'rgba(0,245,196,0.3)');
-  grad.addColorStop(1, 'rgba(0,245,196,0)');
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  ctx.moveTo(0, H);
-  data.forEach((v, i) => {
-    const x = i * step;
-    const y = H - (v / maxVal) * H;
-    i === 0 ? ctx.lineTo(x, y) : ctx.lineTo(x, y);
-  });
-  ctx.lineTo(W, H);
-  ctx.closePath();
-  ctx.fill();
+      const accuracy = position.coords.accuracy;
+      const statusEl = document.getElementById('loc-status');
+      if (accuracy < 10) {
+        statusEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> GPS excelente (±' + accuracy.toFixed(0) + 'm)';
+        statusEl.style.color = 'var(--success)';
+      } else if (accuracy < 20) {
+        statusEl.innerHTML = '📍 GPS bueno (±' + accuracy.toFixed(0) + 'm)';
+        statusEl.style.color = 'var(--warning)';
+      } else {
+        statusEl.innerHTML = '⚠️ GPS bajo (±' + accuracy.toFixed(0) + 'm)';
+        statusEl.style.color = 'var(--danger)';
+      }
+    }
 
-  // Línea
-  ctx.strokeStyle = 'rgba(0,245,196,0.9)';
-  ctx.lineWidth = 2;
-  ctx.lineJoin  = 'round';
-  ctx.beginPath();
-  data.forEach((v, i) => {
-    const x = i * step;
-    const y = H - (v / maxVal) * H;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  ctx.stroke();
+    function onGPSError(error) {
+      console.error('GPS error:', error);
+      document.getElementById('gps-text').textContent = 'GPS error: ' + error.message;
+    }
 
-  document.getElementById('chart-max').textContent = 'MAX: ' + state.chartMax;
-}
+    // ═══════════════════════════════════════════════════════════════
+    //  HISTORIAL
+    // ═══════════════════════════════════════════════════════════════
+    function saveDetection(data) {
+      const detection = {
+        timestamp: Date.now(),
+        type: data.t === 'F' ? 'ferroso' : 'no-ferroso',
+        delta: data.d,
+        umbral: data.u,
+        baseline: data.b,
+        sens: data.s,
+        duty: data.dc,
+        lat: currentPosition ? currentPosition.coords.latitude : null,
+        lng: currentPosition ? currentPosition.coords.longitude : null,
+        accuracy: currentPosition ? currentPosition.coords.accuracy : null
+      };
 
-// ════════════════════════════════════════════════════════
-//  HISTORIAL
-// ════════════════════════════════════════════════════════
-function addToHistory(type, signal) {
-  const entry = {
-    type,
-    signal,
-    time: new Date(),
-    lat: state.gpsLat,
-    lng: state.gpsLng
-  };
-  state.history.unshift(entry);
-  if (state.history.length > 50) state.history.pop();
-  renderHistory();
-}
+      detectionHistory.unshift(detection);
+      
+      if (detectionHistory.length > MAX_HISTORY) {
+        detectionHistory.pop();
+      }
 
-function renderHistory() {
-  const list = document.getElementById('history-list');
-  if (state.history.length === 0) {
-    list.innerHTML = '<div class="hist-empty">Sin detecciones aún.<br>Acerca un metal a la bobina.</div>';
-    return;
-  }
-  list.innerHTML = state.history.slice(0, 30).map(h => `
-    <div class="hist-item">
-      <div class="hist-icon">${h.type === 'F' ? '🔴' : '🟢'}</div>
-      <div class="hist-info">
-        <div class="hist-type ${h.type}">${h.type === 'F' ? 'FERROSO' : 'NO FERROSO'}</div>
-        <div class="hist-meta">${formatTime(h.time)}${h.lat ? ' · GPS ✓' : ''}</div>
-      </div>
-      <div class="hist-signal">${h.signal}</div>
-    </div>
-  `).join('');
-}
+      localStorage.setItem('detector_history', JSON.stringify(detectionHistory));
+      updateHistoryDisplay();
+    }
 
-// ════════════════════════════════════════════════════════
-//  GPS Y MAPA
-// ════════════════════════════════════════════════════════
-function startGPS() {
-  if (!navigator.geolocation) {
-    toast('GPS no disponible en este dispositivo');
-    return;
-  }
-  navigator.geolocation.watchPosition(
-    pos => {
-      state.gpsActive = true;
-      state.gpsLat = pos.coords.latitude;
-      state.gpsLng = pos.coords.longitude;
-      document.getElementById('gps-status').textContent = 'GPS: ✓ activo';
-      document.getElementById('gps-coords').textContent =
-        state.gpsLat.toFixed(5) + ', ' + state.gpsLng.toFixed(5);
-      document.getElementById('btn-gps').innerHTML =
-        '<span class="icon">📍</span>&nbsp;GPS ACTIVO';
-      document.getElementById('btn-gps').classList.add('active-state');
-      toast('📍 GPS activado');
-    },
-    err => toast('Error GPS: ' + err.message),
-    { enableHighAccuracy: true }
-  );
-}
+    function loadHistory() {
+      const saved = localStorage.getItem('detector_history');
+      if (saved) {
+        try {
+          detectionHistory = JSON.parse(saved);
+          updateHistoryDisplay();
+        } catch (e) {
+          console.error('Error cargando historial:', e);
+          detectionHistory = [];
+        }
+      }
+    }
 
-function addMapPin(type) {
-  if (!state.gpsActive || !state.gpsLat) return;
-  state.pins.unshift({
-    type, lat: state.gpsLat, lng: state.gpsLng,
-    signal: state.signal, time: new Date()
-  });
-  renderPins();
-}
+    function updateHistoryDisplay() {
+      const list = document.getElementById('history-list');
+      const count = document.getElementById('history-count');
+      
+      count.textContent = `(${detectionHistory.length})`;
 
-function renderPins() {
-  const count = state.pins.length;
-  document.getElementById('pins-count').textContent = count;
-  const list = document.getElementById('pins-list');
-  if (count === 0) {
-    list.innerHTML = '<div class="hist-empty">Sin puntos marcados.</div>';
-    return;
-  }
-  list.innerHTML = state.pins.slice(0, 20).map(p => `
-    <div class="map-pin-item">
-      <div class="pin-dot ${p.type}"></div>
-      <div style="flex:1">
-        <span style="color:${p.type==='F'?'var(--danger)':'var(--green)'}">
-          ${p.type==='F'?'FERROSO':'NO FERROSO'}
-        </span>
-        <span style="color:var(--muted);margin-left:8px;font-size:10px">${formatTime(p.time)}</span>
-      </div>
-      <span style="color:var(--accent)">${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</span>
-    </div>
-  `).join('');
-}
+      if (detectionHistory.length === 0) {
+        list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-dim);">Sin detecciones registradas</div>';
+        return;
+      }
 
-// ════════════════════════════════════════════════════════
-//  CONTROLES BOTONES
-// ════════════════════════════════════════════════════════
+      list.innerHTML = detectionHistory.map(d => {
+        const date = new Date(d.timestamp);
+        const timeStr = date.toLocaleTimeString();
+        const dateStr = date.toLocaleDateString();
+        
+        return `
+          <div class="history-item ${d.type}">
+            <div class="history-item-header">
+              <div class="history-item-type">
+                ${d.type === 'ferroso' ? '🔴' : '🟢'}
+                ${d.type === 'ferroso' ? 'FERROSO' : 'NO FERROSO'}
+              </div>
+              <div class="history-item-time">${timeStr}</div>
+            </div>
+            <div class="history-item-details">
+              <div class="history-item-detail">
+                <div class="history-item-detail-label">Señal</div>
+                <div class="history-item-detail-value">${d.delta}</div>
+              </div>
+              <div class="history-item-detail">
+                <div class="history-item-detail-label">Sens.</div>
+                <div class="history-item-detail-value">${d.sens}</div>
+              </div>
+              <div class="history-item-detail">
+                <div class="history-item-detail-label">Duty</div>
+                <div class="history-item-detail-value">${d.duty}%</div>
+              </div>
+            </div>
+            ${d.lat && d.lng ? `
+              <div class="history-item-location">
+                📍 ${d.lat.toFixed(6)}, ${d.lng.toFixed(6)} 
+                (±${d.accuracy.toFixed(0)}m)
+                <a href="https://www.google.com/maps?q=${d.lat},${d.lng}" 
+                   target="_blank" 
+                   style="color: var(--primary); margin-left: 8px;">
+                  Ver mapa
+                </a>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
 
-// Sensibilidad
-document.getElementById('sens-up').addEventListener('click', () => {
-  if (state.sensitivity < 10) {
-    state.sensitivity++;
-    sendCmd('S:' + state.sensitivity);
-    updateUI();
-    toast('Sensibilidad: ' + state.sensitivity);
-    vibrate(30);
-  }
-});
+    document.getElementById('btn-save-location').addEventListener('click', () => {
+      if (!currentPosition) {
+        alert('GPS no activo o sin señal');
+        return;
+      }
+      if (!currentData.detecting) {
+        alert('No hay detección activa para guardar');
+        return;
+      }
+      
+      saveDetection({
+        d: currentData.delta,
+        u: currentData.umbral,
+        b: currentData.baseline,
+        s: currentData.sens,
+        dc: currentData.duty,
+        t: currentData.type
+      });
 
-document.getElementById('sens-down').addEventListener('click', () => {
-  if (state.sensitivity > 1) {
-    state.sensitivity--;
-    sendCmd('S:' + state.sensitivity);
-    updateUI();
-    toast('Sensibilidad: ' + state.sensitivity);
-    vibrate(30);
-  }
-});
+      const btn = document.getElementById('btn-save-location');
+      btn.textContent = '✓ GUARDADO';
+      setTimeout(() => {
+        btn.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+          </svg>
+          GUARDAR DETECCIÓN CON GPS
+        `;
+      }, 2000);
+    });
 
-// Calibrar
-document.getElementById('btn-calibrate').addEventListener('click', () => {
-  sendCmd('CAL');
-  toast('⚡ Iniciando calibración...', 3000);
-  vibrate([50, 50, 50]);
-});
+    document.getElementById('btn-clear-history').addEventListener('click', () => {
+      if (!confirm('¿Borrar todo el historial de detecciones?')) return;
+      
+      detectionHistory = [];
+      localStorage.removeItem('detector_history');
+      updateHistoryDisplay();
+    });
 
-// Alarma
-document.getElementById('btn-alarm').addEventListener('click', function() {
-  state.alarmOn = !state.alarmOn;
-  const on = state.alarmOn;
-  sendCmd(on ? 'ALARM:1' : 'ALARM:0');
-  this.querySelector('.icon').textContent = on ? '🔔' : '🔕';
-  this.childNodes[1].textContent = on ? 'ALARMA ON' : 'ALARMA OFF';
-  this.classList.toggle('active-state', on);
-  toast(on ? '🔔 Alarma activada' : '🔕 Alarma silenciada');
-  vibrate(40);
-});
+    // ═══════════════════════════════════════════════════════════════
+    //  CHART
+    // ═══════════════════════════════════════════════════════════════
+    function drawChart() {
+      ctx.fillStyle = 'var(--bg-dark)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-// Vibración
-document.getElementById('btn-vibrate').addEventListener('click', function() {
-  state.vibrateOn = !state.vibrateOn;
-  const on = state.vibrateOn;
-  this.querySelector('.icon').textContent = on ? '📳' : '📴';
-  this.childNodes[1].textContent = on ? 'VIBRACIÓN ON' : 'VIBRACIÓN OFF';
-  this.classList.toggle('active-state', on);
-  toast(on ? '📳 Vibración activada' : '📴 Vibración desactivada');
-});
+      const barWidth = canvas.width / chartData.length;
+      
+      for (let i = 0; i < chartData.length; i++) {
+        const idx = (chartIdx + i) % chartData.length;
+        const val = chartData[idx];
+        const barHeight = Math.min((val / 400) * canvas.height, canvas.height);
+        
+        const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
+        gradient.addColorStop(0, '#00d4ff');
+        gradient.addColorStop(0.5, '#39d353');
+        gradient.addColorStop(1, '#ffa502');
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(i * barWidth, canvas.height - barHeight, barWidth - 1, barHeight);
+      }
+    }
 
-// Limpiar historial
-document.getElementById('btn-clear-hist').addEventListener('click', () => {
-  state.history = [];
-  state.pins    = [];
-  state.detections = 0;
-  renderHistory();
-  renderPins();
-  toast('🗑️ Historial limpiado');
-  vibrate(50);
-});
+    // ═══════════════════════════════════════════════════════════════
+    //  MODALS
+    // ═══════════════════════════════════════════════════════════════
+    document.getElementById('btn-help').addEventListener('click', () => {
+      showModal('modal-help');
+    });
 
-// GPS
-document.getElementById('btn-gps').addEventListener('click', startGPS);
+    document.getElementById('btn-settings').addEventListener('click', () => {
+      showModal('modal-settings');
+    });
 
-// Botones conectar
-document.getElementById('btn-connect').addEventListener('click', () => {
-  if (!state.connected) connectBLE();
-});
-document.getElementById('btn-connect-overlay').addEventListener('click', connectBLE);
+    function showModal(id) {
+      document.getElementById(id).classList.add('show');
+    }
 
-// ════════════════════════════════════════════════════════
-//  DEMO MODE (sin BLE conectado — para previsualizar)
-// ════════════════════════════════════════════════════════
-let demoInterval = null;
+    function closeModal() {
+      document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+    }
 
-function startDemo() {
-  // Solo para mostrar la UI en acción si no hay BLE
-  if (state.connected) return;
-  let t = 0;
-  demoInterval = setInterval(() => {
-    if (state.connected) { clearInterval(demoInterval); return; }
-    t += 0.1;
-    const sig = Math.abs(Math.sin(t) * 30 + Math.random() * 5);
-    state.chartData.push(Math.round(sig));
-    if (state.chartData.length > 120) state.chartData.shift();
-    state.chartMax = Math.max(...state.chartData);
-    if (document.getElementById('page-control').classList.contains('active')) drawChart();
-  }, 200);
-}
-
-// ════════════════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════════════════
-buildSensDots();
-drawChart();
-startDemo();
-updateUI();
-</script>
+    // Cerrar modal al hacer clic fuera
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
