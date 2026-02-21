@@ -1,1658 +1,1169 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#1a1a2e">
-  <title>DetectorPI Pro — v3.9</title>
-  <style>
-    :root {
-      --primary: #00d4ff;
-      --secondary: #ff6b35;
-      --success: #39d353;
-      --danger: #ff4757;
-      --warning: #ffa502;
-      --bg-dark: #0f0f1e;
-      --bg-card: #1a1a2e;
-      --bg-panel: #16213e;
-      --text: #e8e8e8;
-      --text-dim: #8b92a8;
-      --border: #2c3e50;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg-dark);
-      color: var(--text);
-      overflow-x: hidden;
-      min-height: 100vh;
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       HEADER CON ESTADO
-       ══════════════════════════════════════════════════════════════ */
-    .header {
-      background: linear-gradient(135deg, var(--bg-panel) 0%, var(--bg-card) 100%);
-      border-bottom: 3px solid var(--primary);
-      padding: 16px 20px;
-      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .header-title h1 {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--primary);
-      letter-spacing: 0.5px;
-    }
-
-    .header-badge {
-      background: var(--primary);
-      color: var(--bg-dark);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 4px;
-      letter-spacing: 0.5px;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .icon-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .icon-btn:active {
-      transform: scale(0.95);
-    }
-
-    .icon-btn svg {
-      width: 20px;
-      height: 20px;
-      fill: var(--text);
-    }
-
-    .icon-btn.active {
-      background: var(--primary);
-      border-color: var(--primary);
-    }
-
-    .icon-btn.active svg {
-      fill: var(--bg-dark);
-    }
-
-    .status-bar {
-      display: flex;
-      gap: 16px;
-      font-size: 12px;
-    }
-
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .led {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--text-dim);
-      transition: all 0.3s;
-    }
-
-    .led.on {
-      background: var(--success);
-      box-shadow: 0 0 10px var(--success);
-      animation: pulse-led 2s infinite;
-    }
-
-    @keyframes pulse-led {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       DETECCIÓN PRINCIPAL
-       ══════════════════════════════════════════════════════════════ */
-    .detection-hero {
-      margin: 20px;
-      padding: 32px 24px;
-      border-radius: 16px;
-      text-align: center;
-      border: 3px solid var(--border);
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .detection-hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at center, transparent 0%, var(--bg-card) 100%);
-      z-index: 0;
-    }
-
-    .detection-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .detection-hero.idle {
-      background: var(--bg-card);
-    }
-
-    .detection-hero.ferroso {
-      background: linear-gradient(135deg, #ff4757 0%, #d63031 100%);
-      border-color: #ff4757;
-      animation: pulse-detection 1s infinite;
-    }
-
-    .detection-hero.no-ferroso {
-      background: linear-gradient(135deg, #39d353 0%, #2ecc71 100%);
-      border-color: #39d353;
-      animation: pulse-detection 1s infinite;
-    }
-
-    @keyframes pulse-detection {
-      0%, 100% {
-        box-shadow: 0 0 0 0 currentColor;
-        transform: scale(1);
-      }
-      50% {
-        box-shadow: 0 0 0 20px transparent;
-        transform: scale(1.02);
-      }
-    }
-
-    .detection-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-    }
-
-    .detection-label {
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    }
-
-    .detection-stats {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-top: 20px;
-      font-size: 14px;
-    }
-
-    .detection-stat {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .detection-stat-label {
-      font-size: 11px;
-      color: rgba(255,255,255,0.7);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .detection-stat-value {
-      font-size: 24px;
-      font-weight: 700;
-      font-family: 'Courier New', monospace;
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       SIGNAL BAR
-       ══════════════════════════════════════════════════════════════ */
-    .signal-panel {
-      margin: 20px;
-      padding: 20px;
-      background: var(--bg-card);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .panel-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .signal-bar-container {
-      position: relative;
-      height: 60px;
-      background: var(--bg-dark);
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 16px;
-      border: 2px solid var(--border);
-    }
-
-    .signal-bar-bg {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 100%;
-      background: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 10px,
-        rgba(255,255,255,0.03) 10px,
-        rgba(255,255,255,0.03) 20px
-      );
-    }
-
-    .signal-bar-fill {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 100%;
-      background: linear-gradient(90deg, 
-        var(--primary) 0%, 
-        var(--success) 50%, 
-        var(--warning) 75%,
-        var(--danger) 100%);
-      transition: width 0.15s ease-out;
-      box-shadow: 0 0 20px currentColor;
-    }
-
-    .signal-threshold-line {
-      position: absolute;
-      top: 0;
-      width: 3px;
-      height: 100%;
-      background: var(--danger);
-      box-shadow: 0 0 8px var(--danger);
-      z-index: 10;
-    }
-
-    .signal-threshold-label {
-      position: absolute;
-      top: -24px;
-      transform: translateX(-50%);
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--danger);
-      background: var(--bg-dark);
-      padding: 2px 6px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-
-    .signal-values {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .signal-value {
-      text-align: center;
-    }
-
-    .signal-value-label {
-      font-size: 10px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-
-    .signal-value-number {
-      font-size: 20px;
-      font-weight: 700;
-      font-family: 'Courier New', monospace;
-      color: var(--primary);
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       LOCATION PANEL
-       ══════════════════════════════════════════════════════════════ */
-    .location-panel {
-      margin: 20px;
-      padding: 20px;
-      background: var(--bg-card);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .location-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 12px;
-    }
-
-    .location-item {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .location-label {
-      font-size: 11px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .location-value {
-      font-size: 16px;
-      font-weight: 600;
-      font-family: 'Courier New', monospace;
-      color: var(--text);
-    }
-
-    .location-accuracy {
-      font-size: 12px;
-      color: var(--success);
-      margin-top: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .save-location-btn {
-      margin-top: 16px;
-      width: 100%;
-      padding: 14px;
-      background: var(--primary);
-      color: var(--bg-dark);
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
-    }
-
-    .save-location-btn:active {
-      transform: scale(0.97);
-    }
-
-    .save-location-btn:disabled {
-      background: var(--text-dim);
-      cursor: not-allowed;
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       HISTORIAL DE DETECCIONES
-       ══════════════════════════════════════════════════════════════ */
-    .history-panel {
-      margin: 20px;
-      padding: 20px;
-      background: var(--bg-card);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .history-list {
-      max-height: 300px;
-      overflow-y: auto;
-      margin-top: 12px;
-    }
-
-    .history-item {
-      padding: 14px;
-      background: var(--bg-panel);
-      border-radius: 8px;
-      margin-bottom: 10px;
-      border-left: 4px solid var(--text-dim);
-      transition: all 0.2s;
-    }
-
-    .history-item.ferroso {
-      border-left-color: var(--danger);
-    }
-
-    .history-item.no-ferroso {
-      border-left-color: var(--success);
-    }
-
-    .history-item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .history-item-type {
-      font-size: 14px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .history-item-time {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .history-item-details {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      font-size: 11px;
-    }
-
-    .history-item-detail {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .history-item-detail-label {
-      color: var(--text-dim);
-    }
-
-    .history-item-detail-value {
-      font-weight: 600;
-      font-family: 'Courier New', monospace;
-    }
-
-    .history-item-location {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border);
-      font-size: 11px;
-      color: var(--text-dim);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .clear-history-btn {
-      margin-top: 16px;
-      width: 100%;
-      padding: 12px;
-      background: var(--bg-panel);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .clear-history-btn:active {
-      transform: scale(0.97);
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       CONTROLS PANEL
-       ══════════════════════════════════════════════════════════════ */
-    .controls-panel {
-      margin: 20px;
-      padding: 20px;
-      background: var(--bg-card);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .control-group {
-      margin-bottom: 24px;
-    }
-
-    .control-group:last-child {
-      margin-bottom: 0;
-    }
-
-    .control-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .control-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .control-btn {
-      flex: 1;
-      padding: 16px;
-      background: var(--bg-panel);
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .control-btn:active {
-      transform: scale(0.96);
-    }
-
-    .control-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .control-btn.primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: var(--bg-dark);
-    }
-
-    .control-btn.danger {
-      background: var(--danger);
-      border-color: var(--danger);
-      color: white;
-    }
-
-    .control-btn.success {
-      background: var(--success);
-      border-color: var(--success);
-      color: var(--bg-dark);
-    }
-
-    .control-display {
-      flex: 0 0 80px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: 700;
-      font-family: 'Courier New', monospace;
-      color: var(--primary);
-      background: var(--bg-dark);
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid var(--border);
-    }
-
-    .control-unit {
-      font-size: 14px;
-      color: var(--text-dim);
-      margin-left: 4px;
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       CHART
-       ══════════════════════════════════════════════════════════════ */
-    .chart-panel {
-      margin: 20px;
-      padding: 20px;
-      background: var(--bg-card);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .chart-container {
-      height: 120px;
-      background: var(--bg-dark);
-      border-radius: 8px;
-      border: 2px solid var(--border);
-      margin-top: 12px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       CONNECT BUTTON
-       ══════════════════════════════════════════════════════════════ */
-    .connect-section {
-      margin: 20px;
-      padding: 24px;
-      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-panel) 100%);
-      border-radius: 12px;
-      border: 2px solid var(--border);
-      text-align: center;
-    }
-
-    .connect-btn {
-      width: 100%;
-      padding: 20px;
-      background: linear-gradient(135deg, var(--primary) 0%, #0090cc 100%);
-      border: none;
-      border-radius: 12px;
-      color: var(--bg-dark);
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      transition: all 0.3s;
-      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .connect-btn:active {
-      transform: scale(0.97);
-    }
-
-    .connect-btn.connected {
-      background: linear-gradient(135deg, var(--danger) 0%, #d63031 100%);
-      box-shadow: 0 4px 20px rgba(255, 71, 87, 0.3);
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       MODAL
-       ══════════════════════════════════════════════════════════════ */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal.show {
-      display: flex;
-    }
-
-    .modal-content {
-      background: var(--bg-card);
-      border-radius: 16px;
-      padding: 28px;
-      max-width: 500px;
-      width: 100%;
-      border: 2px solid var(--primary);
-      box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .modal-body {
-      font-size: 14px;
-      line-height: 1.7;
-      margin-bottom: 24px;
-    }
-
-    .modal-body ul {
-      padding-left: 20px;
-      margin-top: 12px;
-    }
-
-    .modal-body li {
-      margin-bottom: 8px;
-    }
-
-    .modal-footer {
-      display: flex;
-      gap: 12px;
-    }
-
-    .modal-btn {
-      flex: 1;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .modal-btn.primary {
-      background: var(--primary);
-      color: var(--bg-dark);
-    }
-
-    .modal-btn.secondary {
-      background: var(--bg-panel);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       FOOTER
-       ══════════════════════════════════════════════════════════════ */
-    .footer {
-      margin: 40px 20px 20px;
-      padding: 20px;
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-dim);
-      border-top: 1px solid var(--border);
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       UTILITIES
-       ══════════════════════════════════════════════════════════════ */
-    .hidden {
-      display: none !important;
-    }
-
-    .pulse {
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-
-    /* Scrollbar personalizada */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg-panel);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--primary);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DetectorPI Pro v3.9 (5V)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #151b2e;
+            --bg-card: #1a2332;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #7c3aed;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2d3748;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f1419 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, #1a1f2e 100%);
+            padding: 1.5rem 1rem;
+            border-bottom: 2px solid var(--accent-primary);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: -2px;
+        }
+
+        .version-badge {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+        }
+
+        .icon-btn:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Status Card */
+        .status-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: var(--accent-green);
+            box-shadow: 0 0 15px var(--accent-green);
+        }
+
+        .status-dot.disconnected {
+            background: var(--accent-red);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .device-name {
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .gps-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .gps-indicator.active {
+            color: var(--accent-green);
+        }
+
+        /* Connect Button */
+        .connect-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .connect-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .connect-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .connect-btn.disconnected {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .connect-btn.connected {
+            background: linear-gradient(135deg, var(--accent-red), #dc2626);
+            color: white;
+        }
+
+        /* Detection Display */
+        .detection-display {
+            background: linear-gradient(135deg, var(--bg-card) 0%, #1e2637 100%);
+            border-radius: 24px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            border: 2px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detection-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .detection-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .detection-status {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .detection-status.waiting {
+            color: var(--text-secondary);
+        }
+
+        .detection-status.detecting {
+            background: linear-gradient(135deg, var(--accent-green), #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px var(--accent-green)); }
+            50% { filter: drop-shadow(0 0 20px var(--accent-green)); }
+        }
+
+        .detection-values {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .detection-value {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .value-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .value-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Signal Strength */
+        .signal-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .signal-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .signal-icon {
+            font-size: 1.2rem;
+        }
+
+        .signal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .signal-bar-container {
+            position: relative;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .signal-bar {
+            height: 100%;
+            background: linear-gradient(90deg, 
+                var(--accent-green) 0%, 
+                var(--accent-primary) 50%, 
+                var(--accent-red) 100%);
+            width: 0%;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .signal-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0.2) 0%, 
+                transparent 50%,
+                rgba(0, 0, 0, 0.2) 100%);
+        }
+
+        .signal-values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            gap: 1rem;
+        }
+
+        .signal-value {
+            flex: 1;
+            text-align: center;
+        }
+
+        .signal-value-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+        }
+
+        .signal-value-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Controls */
+        .controls-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .control-label-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .calibrate-btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--accent-primary);
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--accent-primary);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .calibrate-btn:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* GPS Card */
+        .gps-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .gps-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .gps-icon {
+            font-size: 1.2rem;
+            color: var(--accent-green);
+        }
+
+        .gps-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .gps-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .gps-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gps-item-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .gps-item-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* History */
+        .history-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .history-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-icon {
+            font-size: 1.2rem;
+        }
+
+        .history-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .history-count {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .history-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .history-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .history-item-icon.ferrous {
+            background: linear-gradient(135deg, var(--accent-red), #dc2626);
+        }
+
+        .history-item-icon.non-ferrous {
+            background: linear-gradient(135deg, var(--accent-green), #22c55e);
+        }
+
+        .history-item-content {
+            flex: 1;
+        }
+
+        .history-item-type {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .history-item-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .history-item-signal {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .logo-title {
+                font-size: 1.2rem;
+            }
+
+            .detection-status {
+                font-size: 2rem;
+            }
+
+            .value-number {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-top">
-      <div class="header-title">
-        <h1>🔍 DetectorPI Pro</h1>
-        <span class="header-badge">v3.9</span>
-      </div>
-      <div class="header-actions">
-        <div class="icon-btn" id="btn-help" title="Ayuda">
-          <svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
-        </div>
-        <div class="icon-btn" id="btn-settings" title="Configuración">
-          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-        </div>
-        <div class="icon-btn" id="btn-location" title="Activar GPS">
-          <svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-        </div>
-      </div>
-    </div>
-    <div class="status-bar">
-      <div class="status-item">
-        <div class="led" id="led-ble"></div>
-        <span id="status-text">Desconectado</span>
-      </div>
-      <div class="status-item">
-        <div class="led" id="led-gps"></div>
-        <span id="gps-text">GPS inactivo</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- DETECCIÓN PRINCIPAL -->
-  <div class="detection-hero idle" id="detection-hero">
-    <div class="detection-content">
-      <div class="detection-icon" id="detection-icon">⚪</div>
-      <div class="detection-label" id="detection-label">EN ESPERA</div>
-      <div class="detection-stats">
-        <div class="detection-stat">
-          <div class="detection-stat-label">Señal</div>
-          <div class="detection-stat-value" id="stat-delta">---</div>
-        </div>
-        <div class="detection-stat">
-          <div class="detection-stat-label">Umbral</div>
-          <div class="detection-stat-value" id="stat-umbral">---</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SIGNAL BAR -->
-  <div class="signal-panel">
-    <div class="panel-title">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-      Intensidad de señal
-    </div>
-    <div class="signal-bar-container">
-      <div class="signal-bar-bg"></div>
-      <div class="signal-bar-fill" id="signal-fill" style="width: 0%"></div>
-      <div class="signal-threshold-line" id="threshold-line" style="left: 20%">
-        <div class="signal-threshold-label">UMBRAL</div>
-      </div>
-    </div>
-    <div class="signal-values">
-      <div class="signal-value">
-        <div class="signal-value-label">Delta</div>
-        <div class="signal-value-number" id="val-delta">0</div>
-      </div>
-      <div class="signal-value">
-        <div class="signal-value-label">Baseline</div>
-        <div class="signal-value-number" id="val-baseline">0</div>
-      </div>
-      <div class="signal-value">
-        <div class="signal-value-label">Sens.</div>
-        <div class="signal-value-number" id="val-sens">5</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LOCATION -->
-  <div class="location-panel hidden" id="location-panel">
-    <div class="panel-title">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-      Ubicación GPS
-    </div>
-    <div class="location-grid">
-      <div class="location-item">
-        <div class="location-label">Latitud</div>
-        <div class="location-value" id="loc-lat">---</div>
-      </div>
-      <div class="location-item">
-        <div class="location-label">Longitud</div>
-        <div class="location-value" id="loc-lng">---</div>
-      </div>
-      <div class="location-item">
-        <div class="location-label">Altitud</div>
-        <div class="location-value" id="loc-alt">--- m</div>
-      </div>
-      <div class="location-item">
-        <div class="location-label">Precisión</div>
-        <div class="location-value" id="loc-acc">--- m</div>
-      </div>
-    </div>
-    <div class="location-accuracy" id="loc-status">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-      GPS activo
-    </div>
-    <button class="save-location-btn" id="btn-save-location">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
-      GUARDAR DETECCIÓN CON GPS
-    </button>
-  </div>
-
-  <!-- HISTORIAL -->
-  <div class="history-panel hidden" id="history-panel">
-    <div class="panel-title">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-      Historial de detecciones
-      <span style="margin-left: auto; font-size: 12px; font-weight: 400;" id="history-count">(0)</span>
-    </div>
-    <div class="history-list" id="history-list">
-      <div style="text-align: center; padding: 40px 20px; color: var(--text-dim);">
-        Sin detecciones registradas
-      </div>
-    </div>
-    <button class="clear-history-btn" id="btn-clear-history">
-      🗑️ Borrar historial
-    </button>
-  </div>
-
-  <!-- CONTROLES -->
-  <div class="controls-panel hidden" id="controls-panel">
-    <div class="panel-title">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
-      Controles de ajuste
-    </div>
-
-    <div class="control-group">
-      <div class="control-label">Sensibilidad (1-10)</div>
-      <div class="control-row">
-        <button class="control-btn" id="btn-sens-down" onclick="adjustSens(-1)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg>
-        </button>
-        <div class="control-display" id="display-sens">5</div>
-        <button class="control-btn" id="btn-sens-up" onclick="adjustSens(1)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <div class="control-label">Duty Cycle (%)</div>
-      <div class="control-row">
-        <button class="control-btn" id="btn-duty-down" onclick="adjustDuty(-5)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg>
-          −5%
-        </button>
-        <div class="control-display">
-          <span id="display-duty">15</span><span class="control-unit">%</span>
-        </div>
-        <button class="control-btn" id="btn-duty-up" onclick="adjustDuty(5)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          +5%
-        </button>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <div class="control-label">Acciones</div>
-      <div class="control-row">
-        <button class="control-btn success" onclick="sendCmd('CAL')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
-          CALIBRAR
-        </button>
-        <button class="control-btn danger" id="btn-mute" onclick="toggleMute()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-          <span id="mute-text">MUTE</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHART -->
-  <div class="chart-panel">
-    <div class="panel-title">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
-      Gráfico de señal
-    </div>
-    <div class="chart-container">
-      <canvas id="chart" width="500" height="120"></canvas>
-    </div>
-  </div>
-
-  <!-- CONNECT -->
-  <div class="connect-section">
-    <button class="connect-btn" id="btn-connect">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg>
-      <span id="btn-connect-text">CONECTAR DETECTOR</span>
-    </button>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    DetectorPI Pro v3.9 FINAL — ESP32-C3 + LM358 + FR107<br>
-    Desarrollado para detección profesional de metales<br>
-    Web Bluetooth API · Geolocalización HTML5
-  </div>
-
-  <!-- MODAL AYUDA -->
-  <div class="modal" id="modal-help">
-    <div class="modal-content">
-      <div class="modal-header">
-        ℹ️ Guía de uso
-      </div>
-      <div class="modal-body">
-        <p><strong>Conexión BLE:</strong></p>
-        <ul>
-          <li>Pulsa "CONECTAR DETECTOR"</li>
-          <li>Selecciona "DetectorPI" en la lista</li>
-          <li>Si no aparece: reinicia el ESP32 y el Bluetooth del teléfono</li>
-          <li>Android 12+: activar permisos de Ubicación para la app</li>
-        </ul>
-
-        <p style="margin-top: 16px;"><strong>GPS:</strong></p>
-        <ul>
-          <li>Pulsa el icono 📍 en la esquina superior</li>
-          <li>Autoriza el permiso de ubicación</li>
-          <li>Espera hasta tener precisión < 20m</li>
-          <li>Guarda detecciones con coordenadas GPS</li>
-        </ul>
-
-        <p style="margin-top: 16px;"><strong>Controles:</strong></p>
-        <ul>
-          <li><strong>Sensibilidad:</strong> 1 (mínima) - 10 (máxima)</li>
-          <li><strong>Duty:</strong> 15% recomendado, subir para más profundidad</li>
-          <li><strong>Calibrar:</strong> siempre con el área libre de metales</li>
-        </ul>
-
-        <p style="margin-top: 16px;"><strong>Detección:</strong></p>
-        <ul>
-          <li>🔴 ROJO = Metal ferroso (hierro, acero)</li>
-          <li>🟢 VERDE = Metal no ferroso (cobre, oro, aluminio)</li>
-          <li>Las detecciones se guardan automáticamente con GPS</li>
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button class="modal-btn primary" onclick="closeModal()">ENTENDIDO</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL SETTINGS -->
-  <div class="modal" id="modal-settings">
-    <div class="modal-content">
-      <div class="modal-header">
-        ⚙️ Configuración avanzada
-      </div>
-      <div class="modal-body">
-        <p><strong>Información del sistema:</strong></p>
-        <ul>
-          <li>Firmware: ESP32-C3 v3.9 FINAL</li>
-          <li>UUID Servicio: 12345678-1234-1234-1234-123456789abc</li>
-          <li>Frecuencia PWM: 250 Hz</li>
-          <li>Buzzer: tone()/noTone() timer independiente</li>
-        </ul>
-
-        <p style="margin-top: 16px;"><strong>Historial local:</strong></p>
-        <ul>
-          <li>Las detecciones se guardan en localStorage del navegador</li>
-          <li>Máximo 100 detecciones</li>
-          <li>Exportar historial (próximamente): CSV + KML</li>
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button class="modal-btn primary" onclick="closeModal()">CERRAR</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // ═══════════════════════════════════════════════════════════════
-    //  CONFIGURACIÓN
-    // ═══════════════════════════════════════════════════════════════
-    const UUID_SVC = '12345678-1234-1234-1234-123456789abc';
-    const UUID_TX  = '12345678-1234-1234-1234-123456789abd';
-    const UUID_RX  = '12345678-1234-1234-1234-123456789abe';
-
-    let device, server, txChar, rxChar;
-    let connected = false;
-    let isMuted = false;
-
-    // GPS
-    let gpsActive = false;
-    let currentPosition = null;
-    let watchId = null;
-
-    // Historial
-    let detectionHistory = [];
-    const MAX_HISTORY = 100;
-
-    // Chart
-    const canvas = document.getElementById('chart');
-    const ctx = canvas.getContext('2d');
-    const chartData = new Array(150).fill(0);
-    let chartIdx = 0;
-
-    // Estado actual
-    let currentData = {
-      delta: 0,
-      umbral: 0,
-      baseline: 0,
-      sens: 5,
-      duty: 15,
-      detecting: false,
-      type: null
-    };
-
-    // ═══════════════════════════════════════════════════════════════
-    //  INICIALIZACIÓN
-    // ═══════════════════════════════════════════════════════════════
-    window.addEventListener('load', () => {
-      loadHistory();
-      drawChart();
-      
-      // Cargar configuración guardada
-      const savedMute = localStorage.getItem('detector_mute');
-      if (savedMute === 'true') {
-        isMuted = true;
-        updateMuteButton();
-      }
-    });
-
-    // ═══════════════════════════════════════════════════════════════
-    //  BLE CONEXIÓN
-    // ═══════════════════════════════════════════════════════════════
-    document.getElementById('btn-connect').addEventListener('click', async () => {
-      if (connected) {
-        disconnect();
-        return;
-      }
-
-      try {
-        updateStatus('Buscando dispositivo...', false);
-        
-        device = await navigator.bluetooth.requestDevice({
-          filters: [{ name: 'DetectorPI' }],
-          optionalServices: [UUID_SVC]
-        });
-
-        device.addEventListener('gattserverdisconnected', onDisconnect);
-
-        updateStatus('Conectando...', false);
-        server = await device.gatt.connect();
-        service = await server.getPrimaryService(UUID_SVC);
-
-        txChar = await service.getCharacteristic(UUID_TX);
-        await txChar.startNotifications();
-        txChar.addEventListener('characteristicvaluechanged', onDataReceived);
-
-        rxChar = await service.getCharacteristic(UUID_RX);
-
-        connected = true;
-        updateStatus('Conectado · DetectorPI', true);
-        
-        const btn = document.getElementById('btn-connect');
-        btn.classList.add('connected');
-        btn.innerHTML = `
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-          <span>DESCONECTAR</span>
-        `;
-
-        document.getElementById('controls-panel').classList.remove('hidden');
-        document.getElementById('history-panel').classList.remove('hidden');
-
-        console.log('✓ BLE conectado');
-      } catch (err) {
-        console.error('Error BLE:', err);
-        updateStatus('Error: ' + err.message, false);
-        showModal('modal-help');
-      }
-    });
-
-    function disconnect() {
-      if (device && device.gatt.connected) {
-        device.gatt.disconnect();
-      }
-      onDisconnect();
-    }
-
-    function onDisconnect() {
-      connected = false;
-      updateStatus('Desconectado', false);
-      
-      const btn = document.getElementById('btn-connect');
-      btn.classList.remove('connected');
-      btn.innerHTML = `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/>
-        </svg>
-        <span>CONECTAR DETECTOR</span>
-      `;
-
-      document.getElementById('controls-panel').classList.add('hidden');
-      resetDisplay();
-      console.log('BLE desconectado');
-    }
-
-    function updateStatus(text, isConnected) {
-      document.getElementById('status-text').textContent = text;
-      const led = document.getElementById('led-ble');
-      led.classList.toggle('on', isConnected);
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //  RECIBIR DATOS BLE
-    // ═══════════════════════════════════════════════════════════════
-    function onDataReceived(event) {
-      const value = new TextDecoder().decode(event.target.value);
-      try {
-        const data = JSON.parse(value);
-        
-        currentData = {
-          delta: data.d,
-          umbral: data.u,
-          baseline: data.b,
-          sens: data.s,
-          duty: data.dc,
-          detecting: data.det === 1,
-          type: data.t
-        };
-
-        updateDisplay(data);
-        
-        // Chart
-        chartData[chartIdx] = data.d;
-        chartIdx = (chartIdx + 1) % chartData.length;
-        drawChart();
-
-        // Guardar detección si hay GPS activo
-        if (data.det === 1 && currentPosition) {
-          saveDetection(data);
-        }
-
-      } catch (err) {
-        console.error('Error parsing JSON:', err, value);
-      }
-    }
-
-    function updateDisplay(data) {
-      // Hero panel
-      const hero = document.getElementById('detection-hero');
-      const icon = document.getElementById('detection-icon');
-      const label = document.getElementById('detection-label');
-
-      if (data.det === 1) {
-        if (data.t === 'F') {
-          hero.className = 'detection-hero ferroso';
-          icon.textContent = '🔴';
-          label.textContent = 'FERROSO';
-        } else if (data.t === 'N') {
-          hero.className = 'detection-hero no-ferroso';
-          icon.textContent = '🟢';
-          label.textContent = 'NO FERROSO';
-        }
-      } else {
-        hero.className = 'detection-hero idle';
-        icon.textContent = '⚪';
-        label.textContent = 'EN ESPERA';
-      }
-
-      // Stats
-      document.getElementById('stat-delta').textContent = data.d;
-      document.getElementById('stat-umbral').textContent = data.u;
-      document.getElementById('val-delta').textContent = data.d;
-      document.getElementById('val-baseline').textContent = data.b;
-      document.getElementById('val-sens').textContent = data.s;
-
-      // Signal bar
-      const maxRange = data.u * 3;
-      const pct = Math.min((data.d / maxRange) * 100, 100);
-      document.getElementById('signal-fill').style.width = pct + '%';
-
-      const thPct = Math.min((data.u / maxRange) * 100, 100);
-      document.getElementById('threshold-line').style.left = thPct + '%';
-
-      // Controles
-      document.getElementById('display-sens').textContent = data.s;
-      document.getElementById('display-duty').textContent = data.dc;
-    }
-
-    function resetDisplay() {
-      document.getElementById('detection-hero').className = 'detection-hero idle';
-      document.getElementById('detection-icon').textContent = '⚪';
-      document.getElementById('detection-label').textContent = 'EN ESPERA';
-      document.getElementById('stat-delta').textContent = '---';
-      document.getElementById('stat-umbral').textContent = '---';
-      document.getElementById('val-delta').textContent = '0';
-      document.getElementById('val-baseline').textContent = '0';
-      document.getElementById('val-sens').textContent = '5';
-      document.getElementById('signal-fill').style.width = '0%';
-      document.getElementById('display-sens').textContent = '5';
-      document.getElementById('display-duty').textContent = '15';
-      chartData.fill(0);
-      chartIdx = 0;
-      drawChart();
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //  COMANDOS
-    // ═══════════════════════════════════════════════════════════════
-    async function sendCmd(cmd) {
-      if (!connected || !rxChar) {
-        alert('No conectado al detector');
-        return;
-      }
-      try {
-        const encoder = new TextEncoder();
-        await rxChar.writeValue(encoder.encode(cmd));
-        console.log('CMD:', cmd);
-      } catch (err) {
-        console.error('Error enviando comando:', err);
-      }
-    }
-
-    function adjustSens(delta) {
-      const cmd = delta > 0 ? 'S+' : 'S-';
-      sendCmd(cmd);
-    }
-
-    function adjustDuty(delta) {
-      const cmd = delta > 0 ? 'D+' : 'D-';
-      sendCmd(cmd);
-    }
-
-    function toggleMute() {
-      if (!connected) return;
-      
-      isMuted = !isMuted;
-      const cmd = isMuted ? 'MUTE' : 'SOUND';
-      sendCmd(cmd);
-      updateMuteButton();
-      
-      localStorage.setItem('detector_mute', isMuted.toString());
-    }
-
-    function updateMuteButton() {
-      const btn = document.getElementById('btn-mute');
-      const text = document.getElementById('mute-text');
-      
-      if (isMuted) {
-        btn.classList.add('danger');
-        text.textContent = 'UNMUTE';
-        btn.querySelector('svg').innerHTML = '<path d="M7 9v6h4l5 5V4l-5 5H7z"/>';
-      } else {
-        btn.classList.remove('danger');
-        text.textContent = 'MUTE';
-        btn.querySelector('svg').innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
-      }
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //  GPS
-    // ═══════════════════════════════════════════════════════════════
-    document.getElementById('btn-location').addEventListener('click', () => {
-      if (gpsActive) {
-        stopGPS();
-      } else {
-        startGPS();
-      }
-    });
-
-    function startGPS() {
-      if (!navigator.geolocation) {
-        alert('Geolocalización no soportada en este navegador');
-        return;
-      }
-
-      document.getElementById('gps-text').textContent = 'GPS activando...';
-      
-      watchId = navigator.geolocation.watchPosition(
-        onGPSSuccess,
-        onGPSError,
-        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-      );
-
-      gpsActive = true;
-      document.getElementById('btn-location').classList.add('active');
-      document.getElementById('location-panel').classList.remove('hidden');
-    }
-
-    function stopGPS() {
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-      }
-      gpsActive = false;
-      currentPosition = null;
-      document.getElementById('btn-location').classList.remove('active');
-      document.getElementById('led-gps').classList.remove('on');
-      document.getElementById('gps-text').textContent = 'GPS inactivo';
-      document.getElementById('location-panel').classList.add('hidden');
-    }
-
-    function onGPSSuccess(position) {
-      currentPosition = position;
-      
-      document.getElementById('led-gps').classList.add('on');
-      document.getElementById('gps-text').textContent = 'GPS activo';
-      
-      document.getElementById('loc-lat').textContent = position.coords.latitude.toFixed(6);
-      document.getElementById('loc-lng').textContent = position.coords.longitude.toFixed(6);
-      document.getElementById('loc-alt').textContent = position.coords.altitude 
-        ? position.coords.altitude.toFixed(0) + ' m'
-        : 'N/A';
-      document.getElementById('loc-acc').textContent = position.coords.accuracy.toFixed(0) + ' m';
-
-      const accuracy = position.coords.accuracy;
-      const statusEl = document.getElementById('loc-status');
-      if (accuracy < 10) {
-        statusEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> GPS excelente (±' + accuracy.toFixed(0) + 'm)';
-        statusEl.style.color = 'var(--success)';
-      } else if (accuracy < 20) {
-        statusEl.innerHTML = '📍 GPS bueno (±' + accuracy.toFixed(0) + 'm)';
-        statusEl.style.color = 'var(--warning)';
-      } else {
-        statusEl.innerHTML = '⚠️ GPS bajo (±' + accuracy.toFixed(0) + 'm)';
-        statusEl.style.color = 'var(--danger)';
-      }
-    }
-
-    function onGPSError(error) {
-      console.error('GPS error:', error);
-      document.getElementById('gps-text').textContent = 'GPS error: ' + error.message;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //  HISTORIAL
-    // ═══════════════════════════════════════════════════════════════
-    function saveDetection(data) {
-      const detection = {
-        timestamp: Date.now(),
-        type: data.t === 'F' ? 'ferroso' : 'no-ferroso',
-        delta: data.d,
-        umbral: data.u,
-        baseline: data.b,
-        sens: data.s,
-        duty: data.dc,
-        lat: currentPosition ? currentPosition.coords.latitude : null,
-        lng: currentPosition ? currentPosition.coords.longitude : null,
-        accuracy: currentPosition ? currentPosition.coords.accuracy : null
-      };
-
-      detectionHistory.unshift(detection);
-      
-      if (detectionHistory.length > MAX_HISTORY) {
-        detectionHistory.pop();
-      }
-
-      localStorage.setItem('detector_history', JSON.stringify(detectionHistory));
-      updateHistoryDisplay();
-    }
-
-    function loadHistory() {
-      const saved = localStorage.getItem('detector_history');
-      if (saved) {
-        try {
-          detectionHistory = JSON.parse(saved);
-          updateHistoryDisplay();
-        } catch (e) {
-          console.error('Error cargando historial:', e);
-          detectionHistory = [];
-        }
-      }
-    }
-
-    function updateHistoryDisplay() {
-      const list = document.getElementById('history-list');
-      const count = document.getElementById('history-count');
-      
-      count.textContent = `(${detectionHistory.length})`;
-
-      if (detectionHistory.length === 0) {
-        list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-dim);">Sin detecciones registradas</div>';
-        return;
-      }
-
-      list.innerHTML = detectionHistory.map(d => {
-        const date = new Date(d.timestamp);
-        const timeStr = date.toLocaleTimeString();
-        const dateStr = date.toLocaleDateString();
-        
-        return `
-          <div class="history-item ${d.type}">
-            <div class="history-item-header">
-              <div class="history-item-type">
-                ${d.type === 'ferroso' ? '🔴' : '🟢'}
-                ${d.type === 'ferroso' ? 'FERROSO' : 'NO FERROSO'}
-              </div>
-              <div class="history-item-time">${timeStr}</div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🔍</div>
+                <div class="logo-text">
+                    <div class="logo-title">DetectorPI Pro</div>
+                    <div class="logo-subtitle">Pulse Induction 5V</div>
+                </div>
             </div>
-            <div class="history-item-details">
-              <div class="history-item-detail">
-                <div class="history-item-detail-label">Señal</div>
-                <div class="history-item-detail-value">${d.delta}</div>
-              </div>
-              <div class="history-item-detail">
-                <div class="history-item-detail-label">Sens.</div>
-                <div class="history-item-detail-value">${d.sens}</div>
-              </div>
-              <div class="history-item-detail">
-                <div class="history-item-detail-label">Duty</div>
-                <div class="history-item-detail-value">${d.duty}%</div>
-              </div>
+            <div class="version-badge">v3.9-5V</div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleHelp()">❓</button>
+                <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
+                <button class="icon-btn" onclick="toggleLocation()">📍</button>
             </div>
-            ${d.lat && d.lng ? `
-              <div class="history-item-location">
-                📍 ${d.lat.toFixed(6)}, ${d.lng.toFixed(6)} 
-                (±${d.accuracy.toFixed(0)}m)
-                <a href="https://www.google.com/maps?q=${d.lat},${d.lng}" 
-                   target="_blank" 
-                   style="color: var(--primary); margin-left: 8px;">
-                  Ver mapa
-                </a>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('');
-    }
+        </div>
+    </header>
 
-    document.getElementById('btn-save-location').addEventListener('click', () => {
-      if (!currentPosition) {
-        alert('GPS no activo o sin señal');
-        return;
-      }
-      if (!currentData.detecting) {
-        alert('No hay detección activa para guardar');
-        return;
-      }
-      
-      saveDetection({
-        d: currentData.delta,
-        u: currentData.umbral,
-        b: currentData.baseline,
-        s: currentData.sens,
-        dc: currentData.duty,
-        t: currentData.type
-      });
+    <div class="container">
+        <!-- Status Card -->
+        <div class="status-card">
+            <div class="status-header">
+                <div class="status-text">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Desconectado</span>
+                    <span class="device-name" id="deviceName"></span>
+                </div>
+                <div class="gps-indicator" id="gpsIndicator">
+                    <span>📍</span>
+                    <span id="gpsText">GPS inactivo</span>
+                </div>
+            </div>
+            <button class="connect-btn disconnected" id="connectBtn" onclick="toggleConnection()">
+                <span id="connectBtnText">Conectar Detector</span>
+            </button>
+        </div>
 
-      const btn = document.getElementById('btn-save-location');
-      btn.textContent = '✓ GUARDADO';
-      setTimeout(() => {
-        btn.innerHTML = `
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
-          </svg>
-          GUARDAR DETECCIÓN CON GPS
-        `;
-      }, 2000);
-    });
+        <!-- Detection Display -->
+        <div class="detection-display">
+            <div class="detection-label">ESTADO DEL DETECTOR</div>
+            <div class="detection-status waiting" id="detectionStatus">EN ESPERA</div>
+            <div class="detection-values">
+                <div class="detection-value">
+                    <div class="value-label">SEÑAL</div>
+                    <div class="value-number" id="signalValue">0</div>
+                </div>
+                <div class="detection-value">
+                    <div class="value-label">UMBRAL</div>
+                    <div class="value-number" id="thresholdValue">500</div>
+                </div>
+            </div>
+        </div>
 
-    document.getElementById('btn-clear-history').addEventListener('click', () => {
-      if (!confirm('¿Borrar todo el historial de detecciones?')) return;
-      
-      detectionHistory = [];
-      localStorage.removeItem('detector_history');
-      updateHistoryDisplay();
-    });
+        <!-- Signal Strength -->
+        <div class="signal-card">
+            <div class="signal-header">
+                <span class="signal-icon">📊</span>
+                <span class="signal-title">INTENSIDAD DE SEÑAL</span>
+            </div>
+            <div class="signal-bar-container">
+                <div class="signal-bar" id="signalBar"></div>
+            </div>
+            <div class="signal-values">
+                <div class="signal-value">
+                    <div class="signal-value-label">DELTA</div>
+                    <div class="signal-value-number" id="deltaValue">0</div>
+                </div>
+                <div class="signal-value">
+                    <div class="signal-value-label">BASELINE</div>
+                    <div class="signal-value-number" id="baselineValue">0</div>
+                </div>
+                <div class="signal-value">
+                    <div class="signal-value-label">SENS.</div>
+                    <div class="signal-value-number" id="sensitivityValue">5</div>
+                </div>
+            </div>
+        </div>
 
-    // ═══════════════════════════════════════════════════════════════
-    //  CHART
-    // ═══════════════════════════════════════════════════════════════
-    function drawChart() {
-      ctx.fillStyle = 'var(--bg-dark)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+        <!-- Controls -->
+        <div class="controls-card">
+            <div class="control-group">
+                <div class="control-label">
+                    <span class="control-label-text">Sensibilidad</span>
+                    <span class="control-value" id="sensControl">5</span>
+                </div>
+                <div class="control-buttons">
+                    <button class="control-btn" onclick="adjustSensitivity(-1)">−</button>
+                    <button class="control-btn" onclick="adjustSensitivity(1)">+</button>
+                </div>
+            </div>
+            <div class="control-group">
+                <button class="calibrate-btn" onclick="calibrate()">🎯 Recalibrar Detector</button>
+            </div>
+        </div>
 
-      const barWidth = canvas.width / chartData.length;
-      
-      for (let i = 0; i < chartData.length; i++) {
-        const idx = (chartIdx + i) % chartData.length;
-        const val = chartData[idx];
-        const barHeight = Math.min((val / 400) * canvas.height, canvas.height);
+        <!-- GPS Location -->
+        <div class="gps-card">
+            <div class="gps-header">
+                <span class="gps-icon">📍</span>
+                <span class="gps-title">UBICACIÓN GPS</span>
+            </div>
+            <div class="gps-grid">
+                <div class="gps-item">
+                    <div class="gps-item-label">Latitud</div>
+                    <div class="gps-item-value" id="latValue">--.------</div>
+                </div>
+                <div class="gps-item">
+                    <div class="gps-item-label">Longitud</div>
+                    <div class="gps-item-value" id="lngValue">--.------</div>
+                </div>
+                <div class="gps-item">
+                    <div class="gps-item-label">Altitud</div>
+                    <div class="gps-item-value" id="altValue">-- m</div>
+                </div>
+                <div class="gps-item">
+                    <div class="gps-item-label">Precisión</div>
+                    <div class="gps-item-value" id="accValue">-- m</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detection History -->
+        <div class="history-card">
+            <div class="history-header">
+                <div class="history-title-group">
+                    <span class="history-icon">🕐</span>
+                    <span class="history-title">HISTORIAL DE DETECCIONES</span>
+                </div>
+                <span class="history-count" id="historyCount">(0)</span>
+            </div>
+            <div id="historyContainer">
+                <div class="history-empty">Sin detecciones registradas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">⚙️ Configuración</div>
+                <button class="modal-close" onclick="toggleSettings()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    DetectorPI Pro v3.9 con alimentación LM358 a 5V para mejor rendimiento.
+                </p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    • Baseline esperado: 800-1200<br>
+                    • Ganancia LM358: 7.8x (R2=6.8kΩ)<br>
+                    • Frecuencia PWM: 300 Hz<br>
+                    • Duty cycle: 22% (ajustable)<br>
+                    • Bobina: 20cm / 25 vueltas / AWG #21
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // BLE Configuration
+        const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+        const CHAR_UUID = '6d68efe5-04b6-4a85-abc4-c2670b7bf7fd';
+
+        let bluetoothDevice = null;
+        let characteristic = null;
+        let isConnected = false;
+        let detectionHistory = [];
+
+        // UI Elements
+        const connectBtn = document.getElementById('connectBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const deviceName = document.getElementById('deviceName');
+        const detectionStatus = document.getElementById('detectionStatus');
+        const signalBar = document.getElementById('signalBar');
         
-        const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
-        gradient.addColorStop(0, '#00d4ff');
-        gradient.addColorStop(0.5, '#39d353');
-        gradient.addColorStop(1, '#ffa502');
-        
-        ctx.fillStyle = gradient;
-        ctx.fillRect(i * barWidth, canvas.height - barHeight, barWidth - 1, barHeight);
-      }
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //  MODALS
-    // ═══════════════════════════════════════════════════════════════
-    document.getElementById('btn-help').addEventListener('click', () => {
-      showModal('modal-help');
-    });
-
-    document.getElementById('btn-settings').addEventListener('click', () => {
-      showModal('modal-settings');
-    });
-
-    function showModal(id) {
-      document.getElementById(id).classList.add('show');
-    }
-
-    function closeModal() {
-      document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
-    }
-
-    // Cerrar modal al hacer clic fuera
-    document.querySelectorAll('.modal').forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          closeModal();
+        // Toggle Connection
+        async function toggleConnection() {
+            if (isConnected) {
+                disconnect();
+            } else {
+                await connect();
+            }
         }
-      });
-    });
-  </script>
+
+        // Connect to BLE
+        async function connect() {
+            try {
+                connectBtn.innerHTML = '<span class="loading"></span>';
+                
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: 'DetectorPI' }],
+                    optionalServices: [SERVICE_UUID]
+                });
+
+                const server = await bluetoothDevice.gatt.connect();
+                const service = await server.getPrimaryService(SERVICE_UUID);
+                characteristic = await service.getCharacteristic(CHAR_UUID);
+                
+                await characteristic.startNotifications();
+                characteristic.addEventListener('characteristicvaluechanged', handleData);
+
+                isConnected = true;
+                updateConnectionUI(true);
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Error al conectar: ' + error.message);
+                updateConnectionUI(false);
+            }
+        }
+
+        // Disconnect
+        function disconnect() {
+            if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+                bluetoothDevice.gatt.disconnect();
+            }
+            isConnected = false;
+            updateConnectionUI(false);
+        }
+
+        // Update UI
+        function updateConnectionUI(connected) {
+            if (connected) {
+                connectBtn.className = 'connect-btn connected';
+                connectBtn.innerHTML = '<span id="connectBtnText">Desconectar</span>';
+                statusDot.className = 'status-dot connected';
+                statusText.textContent = 'Conectado';
+                deviceName.textContent = '· DetectorPI';
+            } else {
+                connectBtn.className = 'connect-btn disconnected';
+                connectBtn.innerHTML = '<span id="connectBtnText">Conectar Detector</span>';
+                statusDot.className = 'status-dot disconnected';
+                statusText.textContent = 'Desconectado';
+                deviceName.textContent = '';
+            }
+        }
+
+        // Handle incoming data
+        function handleData(event) {
+            const value = event.target.value;
+            const text = new TextDecoder().decode(value);
+            
+            try {
+                const data = JSON.parse(text);
+                updateDisplay(data);
+            } catch (e) {
+                console.error('Parse error:', e);
+            }
+        }
+
+        // Update display with data
+        function updateDisplay(data) {
+            // Update values
+            document.getElementById('signalValue').textContent = data.signal || 0;
+            document.getElementById('thresholdValue').textContent = data.threshold || 500;
+            document.getElementById('deltaValue').textContent = data.delta || 0;
+            document.getElementById('baselineValue').textContent = data.baseline || 0;
+            document.getElementById('sensitivityValue').textContent = data.sensitivity || 5;
+            document.getElementById('sensControl').textContent = data.sensitivity || 5;
+
+            // Update signal bar
+            const percentage = Math.min((data.delta / data.threshold) * 100, 100);
+            signalBar.style.width = percentage + '%';
+
+            // Update detection status
+            if (data.delta > data.threshold) {
+                detectionStatus.textContent = data.ferrous ? '🧲 FERROSO' : '🪙 NO-FERROSO';
+                detectionStatus.className = 'detection-status detecting';
+                
+                // Add to history
+                addDetection(data);
+            } else {
+                detectionStatus.textContent = 'EN ESPERA';
+                detectionStatus.className = 'detection-status waiting';
+            }
+
+            // Update GPS if available
+            if (data.gps) {
+                updateGPS(data.gps);
+            }
+        }
+
+        // Add detection to history
+        function addDetection(data) {
+            const detection = {
+                type: data.ferrous ? 'Ferroso' : 'No-Ferroso',
+                signal: data.signal,
+                time: new Date().toLocaleTimeString(),
+                ferrous: data.ferrous,
+                gps: data.gps
+            };
+
+            detectionHistory.unshift(detection);
+            if (detectionHistory.length > 10) {
+                detectionHistory.pop();
+            }
+
+            updateHistoryDisplay();
+        }
+
+        // Update history display
+        function updateHistoryDisplay() {
+            const container = document.getElementById('historyContainer');
+            const count = document.getElementById('historyCount');
+            
+            count.textContent = '(' + detectionHistory.length + ')';
+
+            if (detectionHistory.length === 0) {
+                container.innerHTML = '<div class="history-empty">Sin detecciones registradas</div>';
+                return;
+            }
+
+            container.innerHTML = detectionHistory.map(d => `
+                <div class="history-item">
+                    <div class="history-item-icon ${d.ferrous ? 'ferrous' : 'non-ferrous'}">
+                        ${d.ferrous ? '🧲' : '🪙'}
+                    </div>
+                    <div class="history-item-content">
+                        <div class="history-item-type">${d.type}</div>
+                        <div class="history-item-time">${d.time}</div>
+                    </div>
+                    <div class="history-item-signal">${d.signal}</div>
+                </div>
+            `).join('');
+        }
+
+        // Adjust sensitivity
+        function adjustSensitivity(change) {
+            if (!characteristic) return;
+            
+            const command = change > 0 ? 'S+' : 'S-';
+            characteristic.writeValue(new TextEncoder().encode(command));
+        }
+
+        // Calibrate
+        function calibrate() {
+            if (!characteristic) return;
+            
+            if (confirm('¿Recalibrar el detector? Aleja todos los metales.')) {
+                characteristic.writeValue(new TextEncoder().encode('CAL'));
+            }
+        }
+
+        // GPS Functions
+        function updateGPS(gps) {
+            document.getElementById('latValue').textContent = gps.lat?.toFixed(6) || '--.------';
+            document.getElementById('lngValue').textContent = gps.lng?.toFixed(6) || '--.------';
+            document.getElementById('altValue').textContent = gps.alt ? gps.alt.toFixed(0) + ' m' : '-- m';
+            document.getElementById('accValue').textContent = gps.acc ? gps.acc.toFixed(0) + ' m' : '-- m';
+            
+            const indicator = document.getElementById('gpsIndicator');
+            const gpsText = document.getElementById('gpsText');
+            
+            if (gps.lat && gps.lng) {
+                indicator.className = 'gps-indicator active';
+                gpsText.textContent = 'GPS activo';
+            }
+        }
+
+        function toggleLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        updateGPS({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            alt: position.coords.altitude,
+                            acc: position.coords.accuracy
+                        });
+                    },
+                    error => console.error('GPS error:', error)
+                );
+            }
+        }
+
+        // Modal functions
+        function toggleSettings() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('active');
+        }
+
+        function toggleHelp() {
+            alert('DetectorPI Pro v3.9 (5V)\n\n' +
+                  '🔍 Detector de metales de inducción de pulso\n' +
+                  '⚡ LM358 alimentado a 5V para mejor rendimiento\n' +
+                  '📡 Conexión BLE con ESP32-C3\n' +
+                  '🎯 Discriminación ferroso/no-ferroso\n' +
+                  '📍 Registro GPS de hallazgos\n\n' +
+                  'Baseline esperado: 800-1200');
+        }
+    </script>
 </body>
 </html>
