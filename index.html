@@ -3,8 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DetectorPI Pro v3.9 (5V)</title>
+    <title>DetectorPI Pro v3.9-5V</title>
     <style>
+        :root {
+            --primary: #00d9ff;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark-1: #0a0e17;
+            --dark-2: #12161f;
+            --dark-3: #1a1f2e;
+            --dark-4: #242938;
+            --text-1: #ffffff;
+            --text-2: #cbd5e1;
+            --text-3: #64748b;
+            --border: rgba(255, 255, 255, 0.1);
+            --glow: 0 0 20px rgba(0, 217, 255, 0.3);
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,216 +34,183 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        :root {
-            --bg-primary: #0a0e1a;
-            --bg-secondary: #151b2e;
-            --bg-card: #1a2332;
-            --accent-primary: #00d4ff;
-            --accent-secondary: #7c3aed;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-yellow: #f59e0b;
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: #2d3748;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-            --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f1419 100%);
-            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--dark-1) 0%, var(--dark-2) 100%);
+            color: var(--text-1);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* Header */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Mejorado */
         .header {
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, #1a1f2e 100%);
+            background: linear-gradient(135deg, var(--dark-2), var(--dark-3));
             padding: 1.5rem 1rem;
-            border-bottom: 2px solid var(--accent-primary);
-            box-shadow: var(--shadow-md);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(20px);
             position: sticky;
             top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
+            z-index: 100;
         }
 
         .header-content {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 1rem;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            flex: 1;
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: var(--glow);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: var(--glow); }
+            50% { box-shadow: 0 0 30px rgba(0, 217, 255, 0.5); }
+        }
+
+        .logo-text h1 {
             font-size: 1.5rem;
-            box-shadow: var(--shadow-glow);
-        }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo-title {
-            font-size: 1.4rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-primary), #fff);
+            background: linear-gradient(135deg, var(--primary), #fff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: -4px;
         }
 
-        .logo-subtitle {
+        .logo-text p {
             font-size: 0.7rem;
-            color: var(--text-muted);
+            color: var(--text-3);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: -2px;
+            letter-spacing: 1.5px;
         }
 
-        .version-badge {
-            background: var(--accent-primary);
-            color: var(--bg-primary);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            box-shadow: var(--shadow-glow);
-        }
-
-        .header-actions {
+        .status-pills {
             display: flex;
             gap: 0.5rem;
+            align-items: center;
         }
 
-        .icon-btn {
-            width: 42px;
-            height: 42px;
-            border: none;
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border-radius: 12px;
-            cursor: pointer;
+        .pill {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid var(--border-color);
+            gap: 0.4rem;
+            transition: var(--transition);
         }
 
-        .icon-btn:hover {
-            background: var(--accent-primary);
-            color: var(--bg-primary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-glow);
+        .pill.version {
+            background: var(--primary);
+            color: var(--dark-1);
+        }
+
+        .pill.status {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .pill.status.connected {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
         }
 
         /* Container */
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 1rem;
+            padding: 1.5rem 1rem 3rem;
         }
 
-        /* Status Card */
-        .status-card {
-            background: var(--bg-card);
-            border-radius: 20px;
+        /* Cards */
+        .card {
+            background: var(--dark-3);
+            border-radius: var(--radius-lg);
             padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
         }
 
-        .status-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
+        .card:hover {
+            border-color: rgba(0, 217, 255, 0.3);
+            transform: translateY(-2px);
         }
 
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            margin-right: 0.5rem;
-            animation: pulse 2s infinite;
+        /* Connect Button Mejorado */
+        .connect-section {
+            text-align: center;
         }
 
-        .status-dot.connected {
-            background: var(--accent-green);
-            box-shadow: 0 0 15px var(--accent-green);
-        }
-
-        .status-dot.disconnected {
-            background: var(--accent-red);
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .status-text {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-        }
-
-        .device-name {
-            color: var(--accent-primary);
-            font-weight: 600;
-            margin-left: 0.5rem;
-        }
-
-        .gps-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .gps-indicator.active {
-            color: var(--accent-green);
-        }
-
-        /* Connect Button */
         .connect-btn {
             width: 100%;
-            padding: 1rem;
+            padding: 1.2rem;
             border: none;
-            border-radius: 16px;
+            border-radius: var(--radius-md);
             font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -234,38 +223,48 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
 
         .connect-btn:active::before {
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
         }
 
         .connect-btn.disconnected {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            box-shadow: var(--shadow-glow);
+            box-shadow: var(--glow), var(--shadow);
+        }
+
+        .connect-btn.disconnected:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.5), var(--shadow);
         }
 
         .connect-btn.connected {
-            background: linear-gradient(135deg, var(--accent-red), #dc2626);
+            background: linear-gradient(135deg, var(--danger), #dc2626);
             color: white;
         }
 
-        /* Detection Display */
+        .connect-btn.loading {
+            background: var(--dark-4);
+            color: var(--text-3);
+            cursor: not-allowed;
+        }
+
+        /* Detection Display Premium */
         .detection-display {
-            background: linear-gradient(135deg, var(--bg-card) 0%, #1e2637 100%);
-            border-radius: 24px;
-            padding: 2.5rem 1.5rem;
-            text-align: center;
-            margin-bottom: 1rem;
-            border: 2px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
             position: relative;
+            background: linear-gradient(135deg, var(--dark-2), var(--dark-3));
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid var(--border);
             overflow: hidden;
+            text-align: center;
         }
 
         .detection-display::before {
@@ -275,126 +274,134 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.1) 0%, transparent 70%);
+            animation: rotate-slow 20s linear infinite;
         }
 
-        @keyframes rotate {
+        @keyframes rotate-slow {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
+        .detection-content {
+            position: relative;
+            z-index: 1;
+        }
+
         .detection-label {
-            font-size: 0.9rem;
-            color: var(--text-muted);
+            font-size: 0.85rem;
+            color: var(--text-3);
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .detection-status {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            position: relative;
-            z-index: 1;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            line-height: 1;
         }
 
-        .detection-status.waiting {
-            color: var(--text-secondary);
+        .detection-status.idle {
+            color: var(--text-2);
         }
 
         .detection-status.detecting {
-            background: linear-gradient(135deg, var(--accent-green), #22c55e);
+            background: linear-gradient(135deg, var(--success), #22c55e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: glow 1.5s ease-in-out infinite;
+            animation: glow-text 1.5s ease-in-out infinite;
         }
 
-        @keyframes glow {
-            0%, 100% { filter: drop-shadow(0 0 10px var(--accent-green)); }
-            50% { filter: drop-shadow(0 0 20px var(--accent-green)); }
+        .detection-status.ferrous {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .detection-values {
+        @keyframes glow-text {
+            0%, 100% { filter: drop-shadow(0 0 10px currentColor); }
+            50% { filter: drop-shadow(0 0 20px currentColor); }
+        }
+
+        .detection-metrics {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
-            position: relative;
-            z-index: 1;
         }
 
-        .detection-value {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
+        .metric {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-sm);
             padding: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
         }
 
-        .value-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-3);
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 0.5rem;
         }
 
-        .value-number {
-            font-size: 1.8rem;
+        .metric-value {
+            font-size: 1.75rem;
             font-weight: 700;
-            color: var(--accent-primary);
+            color: var(--primary);
             font-variant-numeric: tabular-nums;
         }
 
-        /* Signal Strength */
-        .signal-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
+        /* Signal Bar Premium */
+        .signal-section {
+            margin-bottom: 1.5rem;
         }
 
         .signal-header {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: space-between;
             margin-bottom: 1.5rem;
         }
 
-        .signal-icon {
-            font-size: 1.2rem;
-        }
-
         .signal-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-size: 1.1rem;
             font-weight: 600;
-            color: var(--accent-primary);
         }
 
-        .signal-bar-container {
+        .signal-icon {
+            font-size: 1.3rem;
+        }
+
+        .signal-percentage {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .signal-bar-wrapper {
             position: relative;
-            height: 80px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-md);
             overflow: hidden;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border);
         }
 
         .signal-bar {
             height: 100%;
             background: linear-gradient(90deg, 
-                var(--accent-green) 0%, 
-                var(--accent-primary) 50%, 
-                var(--accent-red) 100%);
+                var(--success) 0%, 
+                var(--primary) 50%, 
+                var(--danger) 100%);
             width: 0%;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 30px currentColor;
         }
 
         .signal-bar::after {
@@ -405,185 +412,176 @@
             right: 0;
             bottom: 0;
             background: linear-gradient(180deg, 
-                rgba(255, 255, 255, 0.2) 0%, 
+                rgba(255, 255, 255, 0.3) 0%, 
                 transparent 50%,
-                rgba(0, 0, 0, 0.2) 100%);
+                rgba(0, 0, 0, 0.3) 100%);
+        }
+
+        .signal-marker {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            transition: var(--transition);
         }
 
         .signal-values {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
+            margin-top: 1rem;
         }
 
-        .signal-value {
-            flex: 1;
+        .signal-item {
             text-align: center;
         }
 
-        .signal-value-label {
+        .signal-item-label {
             font-size: 0.7rem;
-            color: var(--text-muted);
+            color: var(--text-3);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 0.3rem;
         }
 
-        .signal-value-number {
-            font-size: 1.3rem;
+        .signal-item-value {
+            font-size: 1.5rem;
             font-weight: 700;
+            color: var(--text-1);
             font-variant-numeric: tabular-nums;
         }
 
-        /* Controls */
-        .controls-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
+        /* Controls Premium */
+        .controls-grid {
+            display: grid;
+            gap: 1.5rem;
         }
 
         .control-group {
-            margin-bottom: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .control-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .control-label {
+        .control-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 0.8rem;
+            margin-bottom: 1rem;
         }
 
-        .control-label-text {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+        .control-label {
+            font-size: 0.85rem;
+            color: var(--text-2);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .control-value {
-            font-size: 1.1rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: var(--accent-primary);
+            color: var(--primary);
         }
 
         .control-buttons {
-            display: flex;
-            gap: 0.8rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
         .control-btn {
-            flex: 1;
             padding: 1rem;
-            border: 2px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text-primary);
-            border-radius: 12px;
-            font-size: 1.5rem;
+            border: 2px solid var(--border);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-1);
+            border-radius: var(--radius-sm);
+            font-size: 1.75rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--primary);
         }
 
         .control-btn:active {
             transform: scale(0.95);
-            background: var(--accent-primary);
-            border-color: var(--accent-primary);
-            color: var(--bg-primary);
+            background: var(--primary);
+            color: var(--dark-1);
         }
 
-        .calibrate-btn {
+        .action-btn {
             width: 100%;
             padding: 1rem;
-            border: 2px solid var(--accent-primary);
-            background: rgba(0, 212, 255, 0.1);
-            color: var(--accent-primary);
-            border-radius: 12px;
+            border: 2px solid var(--primary);
+            background: rgba(0, 217, 255, 0.1);
+            color: var(--primary);
+            border-radius: var(--radius-sm);
             font-size: 1rem;
             font-weight: 600;
-            cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .calibrate-btn:hover {
-            background: var(--accent-primary);
-            color: var(--bg-primary);
-            box-shadow: var(--shadow-glow);
-        }
-
-        /* GPS Card */
-        .gps-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .gps-header {
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
-            margin-bottom: 1rem;
         }
 
-        .gps-icon {
-            font-size: 1.2rem;
-            color: var(--accent-green);
+        .action-btn:hover {
+            background: var(--primary);
+            color: var(--dark-1);
+            transform: translateY(-2px);
+            box-shadow: var(--glow);
         }
 
-        .gps-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .gps-grid {
+        /* Stats Grid */
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        .gps-item {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .stat-card {
+            background: var(--dark-3);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: var(--transition);
         }
 
-        .gps-item-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .stat-card:hover {
+            border-color: rgba(0, 217, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
             margin-bottom: 0.5rem;
         }
 
-        .gps-item-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
         }
 
-        /* History */
-        .history-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
+        /* History Premium */
         .history-header {
             display: flex;
             align-items: center;
@@ -591,149 +589,111 @@
             margin-bottom: 1rem;
         }
 
-        .history-title-group {
+        .history-title {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .history-icon {
-            font-size: 1.2rem;
-        }
-
-        .history-title {
             font-size: 1.1rem;
             font-weight: 600;
         }
 
-        .history-count {
-            background: var(--accent-primary);
-            color: var(--bg-primary);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
+        .history-badge {
+            background: var(--primary);
+            color: var(--dark-1);
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
             font-size: 0.75rem;
             font-weight: 700;
         }
 
-        .history-empty {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
         .history-item {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-sm);
             padding: 1rem;
-            margin-bottom: 0.8rem;
             border: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             align-items: center;
             gap: 1rem;
+            transition: var(--transition);
         }
 
-        .history-item:last-child {
-            margin-bottom: 0;
+        .history-item:hover {
+            border-color: rgba(0, 217, 255, 0.2);
+            transform: translateX(4px);
         }
 
-        .history-item-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+        .history-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             flex-shrink: 0;
         }
 
-        .history-item-icon.ferrous {
-            background: linear-gradient(135deg, var(--accent-red), #dc2626);
+        .history-icon.ferrous {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
         }
 
-        .history-item-icon.non-ferrous {
-            background: linear-gradient(135deg, var(--accent-green), #22c55e);
+        .history-icon.non-ferrous {
+            background: linear-gradient(135deg, var(--success), #22c55e);
         }
 
-        .history-item-content {
+        .history-content {
             flex: 1;
         }
 
-        .history-item-type {
-            font-size: 0.85rem;
+        .history-type {
+            font-size: 0.9rem;
             font-weight: 600;
             margin-bottom: 0.2rem;
         }
 
-        .history-item-time {
+        .history-time {
             font-size: 0.75rem;
-            color: var(--text-muted);
+            color: var(--text-3);
         }
 
-        .history-item-signal {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--accent-primary);
-        }
-
-        /* Settings Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border-radius: 24px;
-            max-width: 500px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 2px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .modal-title {
-            font-size: 1.3rem;
+        .history-signal {
+            font-size: 1.1rem;
             font-weight: 700;
+            color: var(--primary);
         }
 
-        .modal-close {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-3);
         }
 
-        .modal-body {
-            padding: 1.5rem;
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Loading */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Responsive */
@@ -742,197 +702,199 @@
                 padding: 1rem;
             }
 
-            .logo-title {
+            .logo-text h1 {
                 font-size: 1.2rem;
             }
 
             .detection-status {
-                font-size: 2rem;
+                font-size: 2.25rem;
             }
 
-            .value-number {
+            .detection-metrics {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+            }
+
+            .metric {
+                padding: 0.75rem;
+            }
+
+            .metric-value {
                 font-size: 1.5rem;
             }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--accent-primary);
-            animation: spin 1s linear infinite;
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--dark-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.error {
+            border-color: var(--danger);
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <div class="logo-icon">🔍</div>
-                <div class="logo-text">
-                    <div class="logo-title">DetectorPI Pro</div>
-                    <div class="logo-subtitle">Pulse Induction 5V</div>
+    <div class="app-container">
+        <!-- Header Premium -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🔍</div>
+                    <div class="logo-text">
+                        <h1>DetectorPI Pro</h1>
+                        <p>Pulse Induction Advanced</p>
+                    </div>
+                </div>
+                <div class="status-pills">
+                    <div class="pill version">v3.9-5V</div>
+                    <div class="pill status" id="statusPill">
+                        <span class="status-dot"></span>
+                        <span id="statusText">OFF</span>
+                    </div>
                 </div>
             </div>
-            <div class="version-badge">v3.9-5V</div>
-            <div class="header-actions">
-                <button class="icon-btn" onclick="toggleHelp()">❓</button>
-                <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
-                <button class="icon-btn" onclick="toggleLocation()">📍</button>
-            </div>
-        </div>
-    </header>
+        </header>
 
-    <div class="container">
-        <!-- Status Card -->
-        <div class="status-card">
-            <div class="status-header">
-                <div class="status-text">
-                    <span class="status-dot" id="statusDot"></span>
-                    <span id="statusText">Desconectado</span>
-                    <span class="device-name" id="deviceName"></span>
-                </div>
-                <div class="gps-indicator" id="gpsIndicator">
-                    <span>📍</span>
-                    <span id="gpsText">GPS inactivo</span>
-                </div>
+        <div class="container">
+            <!-- Connection Card -->
+            <div class="card connect-section">
+                <button class="connect-btn disconnected" id="connectBtn" onclick="toggleConnection()">
+                    <span id="connectBtnText">🔌 Conectar Detector</span>
+                </button>
             </div>
-            <button class="connect-btn disconnected" id="connectBtn" onclick="toggleConnection()">
-                <span id="connectBtnText">Conectar Detector</span>
-            </button>
-        </div>
 
-        <!-- Detection Display -->
-        <div class="detection-display">
-            <div class="detection-label">ESTADO DEL DETECTOR</div>
-            <div class="detection-status waiting" id="detectionStatus">EN ESPERA</div>
-            <div class="detection-values">
-                <div class="detection-value">
-                    <div class="value-label">SEÑAL</div>
-                    <div class="value-number" id="signalValue">0</div>
-                </div>
-                <div class="detection-value">
-                    <div class="value-label">UMBRAL</div>
-                    <div class="value-number" id="thresholdValue">500</div>
+            <!-- Detection Display -->
+            <div class="detection-display">
+                <div class="detection-content">
+                    <div class="detection-label">ESTADO DE DETECCIÓN</div>
+                    <div class="detection-status idle" id="detectionStatus">EN ESPERA</div>
+                    <div class="detection-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Señal</div>
+                            <div class="metric-value" id="signalValue">0</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Umbral</div>
+                            <div class="metric-value" id="thresholdValue">500</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Delta</div>
+                            <div class="metric-value" id="deltaValue">0</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Signal Strength -->
-        <div class="signal-card">
-            <div class="signal-header">
-                <span class="signal-icon">📊</span>
-                <span class="signal-title">INTENSIDAD DE SEÑAL</span>
-            </div>
-            <div class="signal-bar-container">
-                <div class="signal-bar" id="signalBar"></div>
-            </div>
-            <div class="signal-values">
-                <div class="signal-value">
-                    <div class="signal-value-label">DELTA</div>
-                    <div class="signal-value-number" id="deltaValue">0</div>
+            <!-- Signal Strength -->
+            <div class="card signal-section">
+                <div class="signal-header">
+                    <div class="signal-title">
+                        <span class="signal-icon">📊</span>
+                        <span>Intensidad</span>
+                    </div>
+                    <div class="signal-percentage" id="signalPercent">0%</div>
                 </div>
-                <div class="signal-value">
-                    <div class="signal-value-label">BASELINE</div>
-                    <div class="signal-value-number" id="baselineValue">0</div>
+                <div class="signal-bar-wrapper">
+                    <div class="signal-bar" id="signalBar"></div>
+                    <div class="signal-marker" id="signalMarker" style="right: 0%;"></div>
                 </div>
-                <div class="signal-value">
-                    <div class="signal-value-label">SENS.</div>
-                    <div class="signal-value-number" id="sensitivityValue">5</div>
+                <div class="signal-values">
+                    <div class="signal-item">
+                        <div class="signal-item-label">Baseline</div>
+                        <div class="signal-item-value" id="baselineValue">0</div>
+                    </div>
+                    <div class="signal-item">
+                        <div class="signal-item-label">Sens.</div>
+                        <div class="signal-item-value" id="sensValue">5</div>
+                    </div>
+                    <div class="signal-item">
+                        <div class="signal-item-label">Duty</div>
+                        <div class="signal-item-value" id="dutyValue">22%</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Controls -->
-        <div class="controls-card">
-            <div class="control-group">
-                <div class="control-label">
-                    <span class="control-label-text">Sensibilidad</span>
-                    <span class="control-value" id="sensControl">5</span>
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-value" id="totalDetections">0</div>
+                    <div class="stat-label">Detecciones</div>
                 </div>
-                <div class="control-buttons">
-                    <button class="control-btn" onclick="adjustSensitivity(-1)">−</button>
-                    <button class="control-btn" onclick="adjustSensitivity(1)">+</button>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value" id="avgSignal">0</div>
+                    <div class="stat-label">Señal Promedio</div>
                 </div>
             </div>
-            <div class="control-group">
-                <button class="calibrate-btn" onclick="calibrate()">🎯 Recalibrar Detector</button>
-            </div>
-        </div>
 
-        <!-- GPS Location -->
-        <div class="gps-card">
-            <div class="gps-header">
-                <span class="gps-icon">📍</span>
-                <span class="gps-title">UBICACIÓN GPS</span>
+            <!-- Controls -->
+            <div class="card controls-grid">
+                <div class="control-group">
+                    <div class="control-header">
+                        <span class="control-label">Sensibilidad</span>
+                        <span class="control-value" id="sensControl">5</span>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="control-btn" onclick="adjustSensitivity(-1)">−</button>
+                        <button class="control-btn" onclick="adjustSensitivity(1)">+</button>
+                    </div>
+                </div>
+                <button class="action-btn" onclick="calibrate()">
+                    <span>🎯</span>
+                    <span>Recalibrar Detector</span>
+                </button>
             </div>
-            <div class="gps-grid">
-                <div class="gps-item">
-                    <div class="gps-item-label">Latitud</div>
-                    <div class="gps-item-value" id="latValue">--.------</div>
-                </div>
-                <div class="gps-item">
-                    <div class="gps-item-label">Longitud</div>
-                    <div class="gps-item-value" id="lngValue">--.------</div>
-                </div>
-                <div class="gps-item">
-                    <div class="gps-item-label">Altitud</div>
-                    <div class="gps-item-value" id="altValue">-- m</div>
-                </div>
-                <div class="gps-item">
-                    <div class="gps-item-label">Precisión</div>
-                    <div class="gps-item-value" id="accValue">-- m</div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Detection History -->
-        <div class="history-card">
-            <div class="history-header">
-                <div class="history-title-group">
-                    <span class="history-icon">🕐</span>
-                    <span class="history-title">HISTORIAL DE DETECCIONES</span>
+            <!-- Detection History -->
+            <div class="card">
+                <div class="history-header">
+                    <div class="history-title">
+                        <span>🕐</span>
+                        <span>Historial</span>
+                    </div>
+                    <span class="history-badge" id="historyCount">0</span>
                 </div>
-                <span class="history-count" id="historyCount">(0)</span>
-            </div>
-            <div id="historyContainer">
-                <div class="history-empty">Sin detecciones registradas</div>
+                <div class="history-list" id="historyList">
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>Sin detecciones registradas</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">⚙️ Configuración</div>
-                <button class="modal-close" onclick="toggleSettings()">✕</button>
-            </div>
-            <div class="modal-body">
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    DetectorPI Pro v3.9 con alimentación LM358 a 5V para mejor rendimiento.
-                </p>
-                <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                    • Baseline esperado: 800-1200<br>
-                    • Ganancia LM358: 7.8x (R2=6.8kΩ)<br>
-                    • Frecuencia PWM: 300 Hz<br>
-                    • Duty cycle: 22% (ajustable)<br>
-                    • Bobina: 20cm / 25 vueltas / AWG #21
-                </p>
-            </div>
-        </div>
-    </div>
+    <!-- Toast Container -->
+    <div class="toast" id="toast"></div>
 
     <script>
-        // BLE Configuration - UUIDs del firmware DetectorPI v3.9
+        // BLE Configuration
         const SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
         const CHAR_UUID = '12345678-1234-1234-1234-123456789abd';
 
@@ -940,15 +902,20 @@
         let characteristic = null;
         let isConnected = false;
         let detectionHistory = [];
+        let stats = {
+            total: 0,
+            avgSignal: 0
+        };
 
         // UI Elements
         const connectBtn = document.getElementById('connectBtn');
-        const statusDot = document.getElementById('statusDot');
+        const statusPill = document.getElementById('statusPill');
         const statusText = document.getElementById('statusText');
-        const deviceName = document.getElementById('deviceName');
         const detectionStatus = document.getElementById('detectionStatus');
         const signalBar = document.getElementById('signalBar');
-        
+        const signalMarker = document.getElementById('signalMarker');
+        const signalPercent = document.getElementById('signalPercent');
+
         // Toggle Connection
         async function toggleConnection() {
             if (isConnected) {
@@ -958,10 +925,11 @@
             }
         }
 
-        // Connect to BLE
+        // Connect BLE
         async function connect() {
             try {
-                connectBtn.innerHTML = '<span class="loading"></span>';
+                connectBtn.className = 'connect-btn loading';
+                connectBtn.innerHTML = '<span class="spinner"></span>';
                 
                 bluetoothDevice = await navigator.bluetooth.requestDevice({
                     filters: [{ name: 'DetectorPI' }],
@@ -976,12 +944,13 @@
                 characteristic.addEventListener('characteristicvaluechanged', handleData);
 
                 isConnected = true;
-                updateConnectionUI(true);
+                updateUI(true);
+                showToast('Conectado exitosamente', 'success');
                 
             } catch (error) {
-                console.error('Connection error:', error);
-                alert('Error al conectar: ' + error.message);
-                updateConnectionUI(false);
+                console.error('Error:', error);
+                showToast('Error al conectar: ' + error.message, 'error');
+                updateUI(false);
             }
         }
 
@@ -991,35 +960,32 @@
                 bluetoothDevice.gatt.disconnect();
             }
             isConnected = false;
-            updateConnectionUI(false);
+            updateUI(false);
+            showToast('Desconectado', 'success');
         }
 
         // Update UI
-        function updateConnectionUI(connected) {
+        function updateUI(connected) {
             if (connected) {
                 connectBtn.className = 'connect-btn connected';
-                connectBtn.innerHTML = '<span id="connectBtnText">Desconectar</span>';
-                statusDot.className = 'status-dot connected';
-                statusText.textContent = 'Conectado';
-                deviceName.textContent = '· DetectorPI';
+                connectBtn.innerHTML = '🔌 Desconectar';
+                statusPill.className = 'pill status connected';
+                statusText.textContent = 'ON';
             } else {
                 connectBtn.className = 'connect-btn disconnected';
-                connectBtn.innerHTML = '<span id="connectBtnText">Conectar Detector</span>';
-                statusDot.className = 'status-dot disconnected';
-                statusText.textContent = 'Desconectado';
-                deviceName.textContent = '';
+                connectBtn.innerHTML = '🔌 Conectar Detector';
+                statusPill.className = 'pill status';
+                statusText.textContent = 'OFF';
             }
         }
 
-        // Handle incoming data
+        // Handle Data
         function handleData(event) {
             const value = event.target.value;
             const text = new TextDecoder().decode(value);
             
             try {
                 const data = JSON.parse(text);
-                
-                // Mapear formato del firmware al formato de la app
                 const mappedData = {
                     delta: data.d || 0,
                     signal: data.d || 0,
@@ -1033,89 +999,110 @@
                 
                 updateDisplay(mappedData);
             } catch (e) {
-                console.error('Parse error:', e, 'Raw:', text);
+                console.error('Parse error:', e);
             }
         }
 
-        // Update display with data
+        // Update Display
         function updateDisplay(data) {
             // Update values
-            document.getElementById('signalValue').textContent = data.signal || 0;
-            document.getElementById('thresholdValue').textContent = data.threshold || 500;
-            document.getElementById('deltaValue').textContent = data.delta || 0;
-            document.getElementById('baselineValue').textContent = data.baseline || 0;
-            document.getElementById('sensitivityValue').textContent = data.sensitivity || 5;
-            document.getElementById('sensControl').textContent = data.sensitivity || 5;
+            document.getElementById('signalValue').textContent = data.signal;
+            document.getElementById('thresholdValue').textContent = data.threshold;
+            document.getElementById('deltaValue').textContent = data.delta;
+            document.getElementById('baselineValue').textContent = data.baseline;
+            document.getElementById('sensValue').textContent = data.sensitivity;
+            document.getElementById('sensControl').textContent = data.sensitivity;
+            document.getElementById('dutyValue').textContent = data.duty + '%';
 
             // Update signal bar
             const percentage = Math.min((data.delta / data.threshold) * 100, 100);
             signalBar.style.width = percentage + '%';
+            signalMarker.style.right = (100 - percentage) + '%';
+            signalPercent.textContent = Math.round(percentage) + '%';
 
             // Update detection status
-            if (data.delta > data.threshold) {
-                detectionStatus.textContent = data.ferrous ? '🧲 FERROSO' : '🪙 NO-FERROSO';
-                detectionStatus.className = 'detection-status detecting';
+            if (data.detected) {
+                const type = data.ferrous ? 'ferroso' : 'non-ferrous';
+                const icon = data.ferrous ? '🧲' : '🪙';
+                const label = data.ferrous ? 'FERROSO' : 'NO-FERROSO';
                 
-                // Add to history
+                detectionStatus.textContent = icon + ' ' + label;
+                detectionStatus.className = 'detection-status detecting ' + type;
+                
                 addDetection(data);
             } else {
                 detectionStatus.textContent = 'EN ESPERA';
-                detectionStatus.className = 'detection-status waiting';
-            }
-
-            // Update GPS if available
-            if (data.gps) {
-                updateGPS(data.gps);
+                detectionStatus.className = 'detection-status idle';
             }
         }
 
-        // Add detection to history
+        // Add Detection
         function addDetection(data) {
             const detection = {
                 type: data.ferrous ? 'Ferroso' : 'No-Ferroso',
+                icon: data.ferrous ? '🧲' : '🪙',
                 signal: data.signal,
                 time: new Date().toLocaleTimeString(),
-                ferrous: data.ferrous,
-                gps: data.gps
+                ferrous: data.ferrous
             };
 
             detectionHistory.unshift(detection);
-            if (detectionHistory.length > 10) {
+            if (detectionHistory.length > 20) {
                 detectionHistory.pop();
             }
 
-            updateHistoryDisplay();
+            stats.total++;
+            stats.avgSignal = Math.round(
+                detectionHistory.reduce((sum, d) => sum + d.signal, 0) / detectionHistory.length
+            );
+
+            updateHistory();
+            updateStats();
         }
 
-        // Update history display
-        function updateHistoryDisplay() {
-            const container = document.getElementById('historyContainer');
+        // Update History
+        function updateHistory() {
+            const container = document.getElementById('historyList');
             const count = document.getElementById('historyCount');
             
-            count.textContent = '(' + detectionHistory.length + ')';
+            count.textContent = detectionHistory.length;
 
             if (detectionHistory.length === 0) {
-                container.innerHTML = '<div class="history-empty">Sin detecciones registradas</div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>Sin detecciones registradas</p>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = detectionHistory.map(d => `
+            container.innerHTML = detectionHistory.slice(0, 10).map(d => `
                 <div class="history-item">
-                    <div class="history-item-icon ${d.ferrous ? 'ferrous' : 'non-ferrous'}">
-                        ${d.ferrous ? '🧲' : '🪙'}
+                    <div class="history-icon ${d.ferrous ? 'ferrous' : 'non-ferrous'}">
+                        ${d.icon}
                     </div>
-                    <div class="history-item-content">
-                        <div class="history-item-type">${d.type}</div>
-                        <div class="history-item-time">${d.time}</div>
+                    <div class="history-content">
+                        <div class="history-type">${d.type}</div>
+                        <div class="history-time">${d.time}</div>
                     </div>
-                    <div class="history-item-signal">${d.signal}</div>
+                    <div class="history-signal">${d.signal}</div>
                 </div>
             `).join('');
         }
 
-        // Adjust sensitivity
+        // Update Stats
+        function updateStats() {
+            document.getElementById('totalDetections').textContent = stats.total;
+            document.getElementById('avgSignal').textContent = stats.avgSignal;
+        }
+
+        // Adjust Sensitivity
         function adjustSensitivity(change) {
-            if (!characteristic) return;
+            if (!characteristic) {
+                showToast('Conecta el detector primero', 'error');
+                return;
+            }
             
             const command = change > 0 ? 'S+' : 'S-';
             characteristic.writeValue(new TextEncoder().encode(command));
@@ -1123,59 +1110,26 @@
 
         // Calibrate
         function calibrate() {
-            if (!characteristic) return;
+            if (!characteristic) {
+                showToast('Conecta el detector primero', 'error');
+                return;
+            }
             
-            if (confirm('¿Recalibrar el detector? Aleja todos los metales.')) {
+            if (confirm('¿Recalibrar? Aleja todos los metales.')) {
                 characteristic.writeValue(new TextEncoder().encode('CAL'));
+                showToast('Recalibrando...', 'success');
             }
         }
 
-        // GPS Functions
-        function updateGPS(gps) {
-            document.getElementById('latValue').textContent = gps.lat?.toFixed(6) || '--.------';
-            document.getElementById('lngValue').textContent = gps.lng?.toFixed(6) || '--.------';
-            document.getElementById('altValue').textContent = gps.alt ? gps.alt.toFixed(0) + ' m' : '-- m';
-            document.getElementById('accValue').textContent = gps.acc ? gps.acc.toFixed(0) + ' m' : '-- m';
+        // Show Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
             
-            const indicator = document.getElementById('gpsIndicator');
-            const gpsText = document.getElementById('gpsText');
-            
-            if (gps.lat && gps.lng) {
-                indicator.className = 'gps-indicator active';
-                gpsText.textContent = 'GPS activo';
-            }
-        }
-
-        function toggleLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        updateGPS({
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                            alt: position.coords.altitude,
-                            acc: position.coords.accuracy
-                        });
-                    },
-                    error => console.error('GPS error:', error)
-                );
-            }
-        }
-
-        // Modal functions
-        function toggleSettings() {
-            const modal = document.getElementById('settingsModal');
-            modal.classList.toggle('active');
-        }
-
-        function toggleHelp() {
-            alert('DetectorPI Pro v3.9 (5V)\n\n' +
-                  '🔍 Detector de metales de inducción de pulso\n' +
-                  '⚡ LM358 alimentado a 5V para mejor rendimiento\n' +
-                  '📡 Conexión BLE con ESP32-C3\n' +
-                  '🎯 Discriminación ferroso/no-ferroso\n' +
-                  '📍 Registro GPS de hallazgos\n\n' +
-                  'Baseline esperado: 800-1200');
+            setTimeout(() => {
+                toast.className = 'toast ' + type;
+            }, 3000);
         }
     </script>
 </body>
